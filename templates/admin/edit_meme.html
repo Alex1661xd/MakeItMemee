@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar {{template.name}} - Make it Meme Admin</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            margin: 0;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #e74c3c;
+            text-shadow: 2px 2px #000;
+            margin-bottom: 2rem;
+        }
+
+        .editor-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        .preview-area {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .meme-preview {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+
+        .meme-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .meme-text-preview {
+            position: absolute;
+            color: #000;
+            font-weight: 500;
+            text-align: center;
+            text-shadow: none;
+            font-family: 'Roboto', Arial, Helvetica, sans-serif;
+            text-transform: none;
+            line-height: 1.15;
+            word-wrap: break-word;
+            max-width: 90%;
+            transform: translate(-50%, -50%);
+            cursor: move;
+            border: 2px dashed #95a5a6;
+            background: rgba(255,255,255,0.95);
+            border-radius: 6px;
+            padding: 6px 8px;
+        }
+
+        .meme-text-preview:hover {
+            border-color: #f1c40f;
+        }
+
+        .controls-area {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .control-group {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .control-group h3 {
+            font-size: 0.8rem;
+            color: #f1c40f;
+            margin-bottom: 1rem;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        label {
+            font-size: 0.5rem;
+            color: #95a5a6;
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 0.6rem;
+            background: #ffffff;
+            border: 1px solid #dfe6e9;
+            border-radius: 6px;
+            color: #000;
+            font-family: 'Roboto', Arial, Helvetica, sans-serif;
+            font-size: 0.85rem;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #f1c40f;
+        }
+
+        .range-input {
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+
+        .save-button {
+            width: 100%;
+            background: #27ae60;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .save-button:hover {
+            background: #229954;
+            transform: scale(1.02);
+        }
+
+        .back-link {
+            color: #95a5a6;
+            text-decoration: none;
+            font-size: 0.6rem;
+            margin-top: 2rem;
+            display: inline-block;
+        }
+
+        .back-link:hover {
+            color: #f1c40f;
+        }
+
+        @media (max-width: 768px) {
+            .editor-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✏️ Editando: {{template.name}} ✏️</h1>
+        
+        <div class="editor-layout">
+            <div class="preview-area">
+                <h3 style="font-size: 0.8rem; color: #f1c40f; margin-bottom: 1rem;">Vista Previa</h3>
+                <div class="meme-preview" id="memePreview">
+                    <img src="/{{template.image_path}}" alt="{{template.name}}" id="memeImage">
+                    <div class="meme-text-preview" id="text1Preview"></div>
+                    <div class="meme-text-preview" id="text2Preview"></div>
+                </div>
+            </div>
+            
+            <div class="controls-area">
+                <form id="editForm">
+                    <!-- Texto 1 -->
+                    <div class="control-group">
+                        <h3>{{template.text1_label}}</h3>
+                        <div>
+                            <label>Etiqueta:</label>
+                            <input type="text" id="text1_label" value="{{template.text1_label}}">
+                        </div>
+                        <div class="input-row">
+                            <div>
+                                <label>X (0-100%):</label>
+                                <input type="number" id="text1_x" value="{{template.text1_x}}" min="0" max="100" step="0.1">
+                            </div>
+                            <div>
+                                <label>Y (0-100%):</label>
+                                <input type="number" id="text1_y" value="{{template.text1_y}}" min="0" max="100" step="0.1">
+                            </div>
+                        </div>
+                        <div>
+                            <label>Tamaño de fuente:</label>
+                            <input type="number" id="text1_size" value="{{template.text1_size}}" min="8" max="72">
+                        </div>
+                        <div>
+                            <label>Texto de prueba:</label>
+                            <input type="text" id="text1_sample" placeholder="Escribe aquí para probar...">
+                        </div>
+                    </div>
+
+                    <!-- Texto 2 -->
+                    <div class="control-group">
+                        <h3>{{template.text2_label}}</h3>
+                        <div>
+                            <label>Etiqueta:</label>
+                            <input type="text" id="text2_label" value="{{template.text2_label}}">
+                        </div>
+                        <div class="input-row">
+                            <div>
+                                <label>X (0-100%):</label>
+                                <input type="number" id="text2_x" value="{{template.text2_x}}" min="0" max="100" step="0.1">
+                            </div>
+                            <div>
+                                <label>Y (0-100%):</label>
+                                <input type="number" id="text2_y" value="{{template.text2_y}}" min="0" max="100" step="0.1">
+                            </div>
+                        </div>
+                        <div>
+                            <label>Tamaño de fuente:</label>
+                            <input type="number" id="text2_size" value="{{template.text2_size}}" min="8" max="72">
+                        </div>
+                        <div>
+                            <label>Texto de prueba:</label>
+                            <input type="text" id="text2_sample" placeholder="Escribe aquí para probar...">
+                        </div>
+                    </div>
+
+                    <!-- Dimensiones de imagen -->
+                    <div class="control-group">
+                        <h3>Dimensiones de imagen</h3>
+                        <div class="input-row">
+                            <div>
+                                <label>Ancho (px):</label>
+                                <input type="number" id="image_width" value="{{template.image_width}}" min="100" max="1000">
+                            </div>
+                            <div>
+                                <label>Alto (px):</label>
+                                <input type="number" id="image_height" value="{{template.image_height}}" min="100" max="1000">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="save-button">💾 Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+
+        <a href="/admin" class="back-link">← Volver al panel</a>
+    </div>
+
+    <script>
+        // Elementos del DOM
+        const text1Preview = document.getElementById('text1Preview');
+        const text2Preview = document.getElementById('text2Preview');
+        const form = document.getElementById('editForm');
+
+        // Función para actualizar la vista previa
+        function updatePreview() {
+            // Texto 1
+            const text1X = document.getElementById('text1_x').value;
+            const text1Y = document.getElementById('text1_y').value;
+            const text1Size = document.getElementById('text1_size').value;
+            const text1Sample = document.getElementById('text1_sample').value;
+
+            text1Preview.style.left = text1X + '%';
+            text1Preview.style.top = text1Y + '%';
+            text1Preview.style.fontSize = text1Size + 'px';
+            text1Preview.textContent = text1Sample || '{{template.text1_label}}';
+
+            // Texto 2
+            const text2X = document.getElementById('text2_x').value;
+            const text2Y = document.getElementById('text2_y').value;
+            const text2Size = document.getElementById('text2_size').value;
+            const text2Sample = document.getElementById('text2_sample').value;
+
+            text2Preview.style.left = text2X + '%';
+            text2Preview.style.top = text2Y + '%';
+            text2Preview.style.fontSize = text2Size + 'px';
+            text2Preview.textContent = text2Sample || '{{template.text2_label}}';
+        }
+
+        // Event listeners para actualización en tiempo real
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', updatePreview);
+        });
+
+        // Manejar envío del formulario
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                text1_label: document.getElementById('text1_label').value,
+                text1_x: parseFloat(document.getElementById('text1_x').value),
+                text1_y: parseFloat(document.getElementById('text1_y').value),
+                text1_size: parseInt(document.getElementById('text1_size').value),
+                text2_label: document.getElementById('text2_label').value,
+                text2_x: parseFloat(document.getElementById('text2_x').value),
+                text2_y: parseFloat(document.getElementById('text2_y').value),
+                text2_size: parseInt(document.getElementById('text2_size').value),
+                image_width: parseInt(document.getElementById('image_width').value),
+                image_height: parseInt(document.getElementById('image_height').value)
+            };
+
+            try {
+                const response = await fetch('/admin/meme/{{template.id}}/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('✅ Cambios guardados correctamente');
+                } else {
+                    alert('❌ Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('❌ Error al guardar: ' + error.message);
+            }
+        });
+
+        // Inicializar vista previa
+        updatePreview();
+    </script>
+</body>
+</html>

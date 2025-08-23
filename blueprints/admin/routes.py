@@ -59,8 +59,7 @@ def admin_panel():
     return render_template('admin/panel.html', 
                          templates=templates, 
                          pagination=pagination)
-
-@admin_bp.route("/meme/<int:meme_id>")
+@a@admin_bp.route("/meme/<int:meme_id>")
 @require_admin_auth
 def edit_meme_positions(meme_id):
     """Editar posiciones de texto de un meme específico"""

@@ -99,51 +99,49 @@ class PlayerTemplate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'), index=True)
-    template_id = db.Column(db.Integer, db.ForeignKey('meme_template.id'), index=True)
-    round_number = db.Column(db.Integer, default=1)
-    
-    # Datos del meme creado por el jugador
-    text1 = db.Column(db.String(200), nullable=True)
-    text2 = db.Column(db.String(200), nullable=True)
-    text3 = db.Column(db.String(200), nullable=True)
-    text4 = db.Column(db.String(200), nullable=True)
-    text5 = db.Column(db.String(200), nullable=True)
-    
-    # Imagen del meme creado (base64)
-    meme_image_data = db.Column(db.Text, nullable=True)
-    meme_filename = db.Column(db.String(255), nullable=True)
-    
-    # Timestamps
+    template_id = db.Column(db.Integer, db.ForeignKey('meme_template.id'))
+    round_number = db.Column(db.Integer, nullable=False, index=True)
+    selected = db.Column(db.Boolean, default=False, index=True)
+    text_top = db.Column(db.String(200))  # Mantener para compatibilidad
+    text_bottom = db.Column(db.String(200))  # Mantener para compatibilidad
+    text1 = db.Column(db.String(200))
+    text2 = db.Column(db.String(200))
+    text3 = db.Column(db.String(200))
+    text4 = db.Column(db.String(200))
+    text5 = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    submitted_at = db.Column(db.DateTime, nullable=True)
+    total_points = db.Column(db.Integer, default=0)  # Puntos totales recibidos
     
     # Relaciones
-    user = db.relationship('User', backref='templates_created')
+    user = db.relationship('User', backref='player_templates')
     game = db.relationship('Game', backref='player_templates')
-    template = db.relationship('MemeTemplate', backref='player_creations')
+    template = db.relationship('MemeTemplate', backref='player_templates')
+    
+    # Índices compuestos para optimizar consultas frecuentes
+    __table_args__ = (
+        db.Index('idx_game_round_selected', 'game_id', 'round_number', 'selected'),
+        db.Index('idx_user_game_round', 'user_id', 'game_id', 'round_number'),
+    )
 
 class Vote(db.Model):
     __tablename__ = 'vote'
     id = db.Column(db.Integer, primary_key=True)
-    voter_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    voted_template_id = db.Column(db.Integer, db.ForeignKey('player_template.id'), index=True)
-    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), index=True)
-    round_number = db.Column(db.Integer, default=1)
+    voter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    player_template_id = db.Column(db.Integer, db.ForeignKey('player_template.id'), nullable=False, index=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False, index=True)
+    round_number = db.Column(db.Integer, nullable=False, index=True)
+    vote_type = db.Column(db.String(20), nullable=False)  # 'suave', 'normal', 'me_rei'
+    points = db.Column(db.Integer, nullable=False)  # Puntos otorgados
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relaciones
     voter = db.relationship('User', backref='votes_given')
-    voted_template = db.relationship('PlayerTemplate', backref='votes_received')
+    player_template = db.relationship('PlayerTemplate', backref='votes_received')
     game = db.relationship('Game', backref='votes')
-
-class GameRound(db.Model):
-    __tablename__ = 'game_round'
-    id = db.Column(db.Integer, primary_key=True)
-    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), index=True)
-    round_number = db.Column(db.Integer, default=1)
-    status = db.Column(db.String(20), default='active')  # active, voting, completed
-    start_time = db.Column(db.DateTime, default=datetime.utcnow)
-    end_time = db.Column(db.DateTime, nullable=True)
     
-    # Relación
-    game = db.relationship('Game', backref='rounds')
+    # Constraints e índices para optimización
+    __table_args__ = (
+        db.UniqueConstraint('voter_id', 'player_template_id', name='unique_vote_per_meme'),
+        db.Index('idx_game_round_vote', 'game_id', 'round_number'),
+        db.Index('idx_template_votes', 'player_template_id', 'vote_type'),
+    )

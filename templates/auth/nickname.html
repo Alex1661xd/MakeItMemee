@@ -3,83 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Make It Meme - Ingresar Nickname</title>
+    <title>Make it Meme - Elige tu Nickname</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: white;
             text-align: center;
-            color: #333;
-            margin-bottom: 30px;
         }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            max-width: 90%;
+            width: 400px;
+            border: 3px solid #fff;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px #000;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: #ffd6d6;
+            margin-bottom: 1.5rem;
+        }
+
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 1.2rem;
         }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
-        }
+
         input[type="text"] {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-        input[type="text"]:focus {
+            padding: 0.8rem;
+            font-size: 0.8rem;
+            font-family: 'Press Start 2P', cursive;
+            border: 2px solid #fff;
+            border-radius: 8px;
             outline: none;
-            border-color: #007bff;
+            box-sizing: border-box;
+            background: #222;
+            color: white;
         }
+
+        input[type="text"]:focus {
+            border-color: #feca57;
+            background: #333;
+        }
+
         button {
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
+            background: #ff6b6b;
             color: white;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            padding: 0.8rem 1rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            width: 100%;
+            transition: all 0.2s ease;
+            font-family: 'Press Start 2P', cursive;
+            text-transform: uppercase;
         }
+
         button:hover {
-            background-color: #0056b3;
+            background: #e55039;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
-        .info {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-            font-size: 14px;
+
+        .error-message {
+            color: #ffcccc;
+            font-size: 0.6rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+                max-width: 95%;
+                width: 90%;
+            }
+            
+            h1 {
+                font-size: 1rem;
+            }
+            
+            .subtitle {
+                font-size: 0.7rem;
+            }
+            
+            input[type="text"] {
+                font-size: 0.7rem;
+                padding: 0.7rem;
+            }
+            
+            button {
+                font-size: 0.7rem;
+                padding: 0.7rem 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 1.2rem;
+                max-width: 98%;
+                width: 95%;
+            }
+            
+            h1 {
+                font-size: 0.9rem;
+            }
+            
+            .subtitle {
+                font-size: 0.6rem;
+            }
+            
+            input[type="text"] {
+                font-size: 0.6rem;
+                padding: 0.6rem;
+            }
+            
+            button {
+                font-size: 0.6rem;
+                padding: 0.6rem 0.8rem;
+            }
+            
+            .form-group {
+                margin-bottom: 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎭 Make It Meme</h1>
-        <form method="POST">
+        <h1>🎮 ¡Make it Meme! 🎮</h1>
+        <p class="subtitle">Elige tu nickname y entra a la partida</p>
+        <form id="nicknameForm" onsubmit="submitNickname(event)">
             <div class="form-group">
-                <label for="nickname">Ingresa tu nickname:</label>
-                <input type="text" id="nickname" name="nickname" required 
-                       placeholder="Ej: MemeMaster, Joker123, etc.">
+                <input type="text" 
+                       id="nickname" 
+                       name="nickname" 
+                       placeholder="Tu nickname..." 
+                       minlength="3" 
+                       maxlength="20" 
+                       required>
+                <div class="error-message" id="errorMessage">
+                    El nickname debe tener entre 3 y 20 caracteres
+                </div>
             </div>
-            <button type="submit">🚀 ¡Empezar a Jugar!</button>
+            <button type="submit">¡Comenzar!</button>
         </form>
-        <div class="info">
-            <p>Tu nickname será visible para otros jugadores</p>
-        </div>
     </div>
+
+    <script>
+        function submitNickname(event) {
+            event.preventDefault();
+            const nicknameInput = document.getElementById('nickname');
+            const errorMessage = document.getElementById('errorMessage');
+            const nickname = nicknameInput.value.trim();
+
+            if (nickname.length < 3 || nickname.length > 20) {
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            fetch('/auth/nickname', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nickname: nickname })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    errorMessage.textContent = data.error;
+                    errorMessage.style.display = 'block';
+                } else {
+                    window.location.href = '/';
+                }
+            })
+            .catch(() => {
+                errorMessage.textContent = 'Ocurrió un error. Por favor, intenta de nuevo.';
+                errorMessage.style.display = 'block';
+            });
+        }
+    </script>
 </body>
 </html>

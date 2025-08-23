@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor Dinámico - {{template.name}}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            margin: 0;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #e74c3c;
+            text-shadow: 2px 2px #000;
+            margin-bottom: 2rem;
+        }
+
+        .editor-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        .canvas-area {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .meme-canvas {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+            border-radius: 8px;
+            overflow: visible;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            background: white;
+        }
+
+        .meme-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .text-box {
+            position: absolute;
+            border: 2px dashed #95a5a6;
+            background: rgba(255, 255, 255, 0.95);
+            color: #000;
+            font-weight: 500;
+            text-align: center;
+            text-shadow: none;
+            font-family: 'Roboto', Arial, Helvetica, sans-serif;
+            text-transform: none;
+            line-height: 1.15;
+            cursor: move;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            min-width: 80px;
+            min-height: 30px;
+            overflow: hidden;
+            word-wrap: break-word;
+            border-radius: 6px;
+            padding: 4px 6px;
+        }
+
+        .text-box:hover {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.3);
+            transform: scale(1.02);
+        }
+
+        .text-box.dragging {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.3);
+            z-index: 1000;
+        }
+
+        .text-box .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f1c40f;
+            border: 1px solid #000;
+            cursor: nw-resize;
+            bottom: -5px;
+            right: -5px;
+        }
+
+        .text-box .delete-handle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #e74c3c;
+            border: 1px solid #000;
+            cursor: pointer;
+            top: -10px;
+            right: -10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            line-height: 1;
+            color: white;
+            border-radius: 50%;
+        }
+
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .control-section {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .control-section h3 {
+            font-size: 0.8rem;
+            color: #f1c40f;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.5rem;
+            color: #95a5a6;
+            margin-bottom: 0.3rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #f1c40f;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .preview-text {
+            background: #ffffff;
+            border: 1px solid #dfe6e9;
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .preview-text input {
+            background: transparent;
+            border: none;
+            color: #000;
+            width: 100%;
+            font-size: 0.85rem;
+            font-family: 'Roboto', Arial, Helvetica, sans-serif;
+        }
+
+        .add-text-box {
+            width: 100%;
+            background: #3498db;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .add-text-box:hover {
+            background: #2980b9;
+            transform: scale(1.02);
+        }
+
+        .save-button {
+            width: 100%;
+            background: #27ae60;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .save-button:hover {
+            background: #229954;
+            transform: scale(1.02);
+        }
+
+        .save-button:disabled {
+            background: #636e72;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-link {
+            color: #95a5a6;
+            text-decoration: none;
+            font-size: 0.6rem;
+            margin-top: 2rem;
+            display: inline-block;
+        }
+
+        .back-link:hover {
+            color: #f1c40f;
+        }
+
+        .instructions {
+            background: rgba(52, 152, 219, 0.2);
+            border: 1px solid #3498db;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            font-size: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .delete-text-btn {
+            background: #e74c3c;
+            border: none;
+            color: white;
+            font-size: 0.5rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .delete-text-btn:hover {
+            background: #c0392b;
+        }
+
+        @media (max-width: 1200px) {
+            .editor-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Editor Dinámico: {{template.name}} 🎨</h1>
+        
+        <div class="instructions">
+            📋 <strong>Instrucciones:</strong><br>
+            • Arrastra las cajas de texto para posicionarlas<br>
+            • Arrastra desde la esquina inferior derecha para redimensionar<br>
+            • Haz clic en la "X" roja para eliminar una caja<br>
+            • Usa "Agregar Caja de Texto" para añadir nuevas cajas<br>
+            • El texto de prueba te ayuda a ver cómo se verá
+        </div>
+
+        <div class="editor-layout">
+            <div class="canvas-area">
+                <div class="meme-canvas" id="memeCanvas">
+                    <img src="/admin/image/{{template.id}}" alt="{{template.name}}" class="meme-image" id="memeImage">
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <form id="editorForm">
+                    <!-- Selector de número de cajas -->
+                    <div class="control-section">
+                        <h3>⚙️ Configuración General</h3>
+                        <div class="form-group">
+                            <label>Número de cajas de texto:</label>
+                            <select id="numTextBoxes">
+                                <option value="1">1 caja</option>
+                                <option value="2">2 cajas</option>
+                                <option value="3">3 cajas</option>
+                                <option value="4">4 cajas</option>
+                                <option value="5">5 cajas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor dinámico para controles de texto -->
+                    <div id="textControlsContainer"></div>
+
+                    <button type="submit" class="save-button">💾 Guardar Configuración</button>
+                </form>
+            </div>
+        </div>
+
+        <a href="/admin" class="back-link">← Volver al panel</a>
+    </div>
+
+    <script>
+        let dragElement = null;
+        let isDragging = false;
+        let isResizing = false;
+        let startX, startY, startLeft, startTop, startWidth, startHeight;
+        
+        const memeCanvas = document.getElementById('memeCanvas');
+        const memeImage = document.getElementById('memeImage');
+        const numTextBoxesSelect = document.getElementById('numTextBoxes');
+        const textControlsContainer = document.getElementById('textControlsContainer');
+        
+        // Configuración inicial del template
+        const templateData = {
+            id: {{template.id}},
+            num_text_boxes: {{template.num_text_boxes}},
+            textBoxes: [
+                {
+                    label: "{{template.text1_label}}",
+                    x: {{template.text1_x}},
+                    y: {{template.text1_y}},
+                    size: {{template.text1_size}},
+                    width: {{template.text1_width}},
+                    height: {{template.text1_height}}
+                },
+                {
+                    label: "{{template.text2_label}}",
+                    x: {{template.text2_x}},
+                    y: {{template.text2_y}},
+                    size: {{template.text2_size}},
+                    width: {{template.text2_width}},
+                    height: {{template.text2_height}}
+                },
+                {
+                    label: "{{template.text3_label if template.text3_label else 'Texto 3'}}",
+                    x: {{template.text3_x if template.text3_x else 50.0}},
+                    y: {{template.text3_y if template.text3_y else 50.0}},
+                    size: {{template.text3_size if template.text3_size else 24}},
+                    width: {{template.text3_width if template.text3_width else 30.0}},
+                    height: {{template.text3_height if template.text3_height else 10.0}}
+                },
+                {
+                    label: "{{template.text4_label if template.text4_label else 'Texto 4'}}",
+                    x: {{template.text4_x if template.text4_x else 25.0}},
+                    y: {{template.text4_y if template.text4_y else 35.0}},
+                    size: {{template.text4_size if template.text4_size else 24}},
+                    width: {{template.text4_width if template.text4_width else 30.0}},
+                    height: {{template.text4_height if template.text4_height else 10.0}}
+                },
+                {
+                    label: "{{template.text5_label if template.text5_label else 'Texto 5'}}",
+                    x: {{template.text5_x if template.text5_x else 75.0}},
+                    y: {{template.text5_y if template.text5_y else 65.0}},
+                    size: {{template.text5_size if template.text5_size else 24}},
+                    width: {{template.text5_width if template.text5_width else 30.0}},
+                    height: {{template.text5_height if template.text5_height else 10.0}}
+                }
+            ]
+        };
+        
+        // Establecer número inicial de cajas
+        numTextBoxesSelect.value = templateData.num_text_boxes;
+        
+        // Inicializar cuando la imagen se carga
+        memeImage.onload = function() {
+            updateEditor();
+        };
+        
+        // Si la imagen ya está cargada
+        if (memeImage.complete) {
+            updateEditor();
+        }
+
+        // Event listener para cambio en el número de cajas
+        numTextBoxesSelect.addEventListener('change', function() {
+            templateData.num_text_boxes = parseInt(this.value);
+            updateEditor();
+        });
+
+        function updateEditor() {
+            updateTextBoxes();
+            updateControls();
+        }
+
+        function updateTextBoxes() {
+            // Limpiar cajas existentes
+            const existingBoxes = memeCanvas.querySelectorAll('.text-box');
+            existingBoxes.forEach(box => box.remove());
+            
+            // Crear cajas según el número seleccionado
+            for (let i = 0; i < templateData.num_text_boxes; i++) {
+                createTextBox(i);
+            }
+        }
+
+        function createTextBox(index) {
+            const textBox = document.createElement('div');
+            textBox.className = 'text-box';
+            textBox.id = `textBox${index + 1}`;
+            textBox.setAttribute('data-text', index + 1);
+            
+            const config = templateData.textBoxes[index];
+            textBox.textContent = config.label;
+            
+            // Aplicar posición y tamaño
+            textBox.style.left = config.x + '%';
+            textBox.style.top = config.y + '%';
+            textBox.style.width = config.width + '%';
+            textBox.style.height = config.height + '%';
+            textBox.style.fontSize = config.size + 'px';
+            
+            // Crear resize handle
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'resize-handle';
+            resizeHandle.setAttribute('data-text', index + 1);
+            textBox.appendChild(resizeHandle);
+            
+            // Eventos para drag & drop
+            textBox.addEventListener('mousedown', handleMouseDown);
+            resizeHandle.addEventListener('mousedown', function(e) {
+                e.stopPropagation();
+                handleResizeStart(e);
+            });
+            
+            memeCanvas.appendChild(textBox);
+        }
+
+        function updateControls() {
+            textControlsContainer.innerHTML = '';
+            
+            for (let i = 0; i < templateData.num_text_boxes; i++) {
+                const controlSection = createControlSection(i);
+                textControlsContainer.appendChild(controlSection);
+            }
+        }
+
+        function createControlSection(index) {
+            const section = document.createElement('div');
+            section.className = 'control-section';
+            
+            const config = templateData.textBoxes[index];
+            
+            section.innerHTML = `
+                <h3>
+                    📝 Texto ${index + 1}
+                </h3>
+                
+                <div class="form-group">
+                    <label>Etiqueta:</label>
+                    <input type="text" id="text${index + 1}_label" value="${config.label}" data-text="${index + 1}">
+                </div>
+                
+                <div class="preview-text">
+                    <label>Texto de prueba:</label>
+                    <input type="text" id="text${index + 1}_sample" placeholder="Escribe para probar..." data-text="${index + 1}">
+                </div>
+                
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>X (%):</label>
+                        <input type="number" id="text${index + 1}_x" value="${config.x}" min="0" max="100" step="0.1" data-text="${index + 1}">
+                    </div>
+                    <div class="form-group">
+                        <label>Y (%):</label>
+                        <input type="number" id="text${index + 1}_y" value="${config.y}" min="0" max="100" step="0.1" data-text="${index + 1}">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>Ancho (%):</label>
+                        <input type="number" id="text${index + 1}_width" value="${config.width}" min="5" max="100" step="0.1" data-text="${index + 1}">
+                    </div>
+                    <div class="form-group">
+                        <label>Alto (%):</label>
+                        <input type="number" id="text${index + 1}_height" value="${config.height}" min="5" max="100" step="0.1" data-text="${index + 1}">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Tamaño fuente:</label>
+                    <input type="number" id="text${index + 1}_size" value="${config.size}" min="8" max="72" data-text="${index + 1}">
+                </div>
+            `;
+            
+            return section;
+        }
+
+        // Event delegation para inputs dinámicos
+        document.addEventListener('input', function(e) {
+            if (e.target.hasAttribute('data-text')) {
+                const textNum = parseInt(e.target.getAttribute('data-text'));
+                updateTextBox(textNum);
+                
+                // Actualizar configuración local
+                const index = textNum - 1;
+                const fieldName = e.target.id.split('_').slice(1).join('_');
+                
+                if (fieldName === 'label') {
+                    templateData.textBoxes[index].label = e.target.value;
+                } else if (fieldName === 'x') {
+                    templateData.textBoxes[index].x = parseFloat(e.target.value);
+                } else if (fieldName === 'y') {
+                    templateData.textBoxes[index].y = parseFloat(e.target.value);
+                } else if (fieldName === 'size') {
+                    templateData.textBoxes[index].size = parseInt(e.target.value);
+                } else if (fieldName === 'width') {
+                    templateData.textBoxes[index].width = parseFloat(e.target.value);
+                } else if (fieldName === 'height') {
+                    templateData.textBoxes[index].height = parseFloat(e.target.value);
+                }
+            }
+        });
+
+        function updateTextBox(textNum) {
+            const textBox = document.getElementById(`textBox${textNum}`);
+            if (!textBox) return;
+            
+            const x = parseFloat(document.getElementById(`text${textNum}_x`).value);
+            const y = parseFloat(document.getElementById(`text${textNum}_y`).value);
+            const width = parseFloat(document.getElementById(`text${textNum}_width`).value);
+            const height = parseFloat(document.getElementById(`text${textNum}_height`).value);
+            const size = parseInt(document.getElementById(`text${textNum}_size`).value);
+            const sample = document.getElementById(`text${textNum}_sample`).value;
+            const label = document.getElementById(`text${textNum}_label`).value;
+            
+            // Usar texto de prueba si existe, si no usar etiqueta
+            textBox.textContent = sample || label;
+            
+            // Aplicar posición y tamaño
+            textBox.style.left = x + '%';
+            textBox.style.top = y + '%';
+            textBox.style.width = width + '%';
+            textBox.style.height = height + '%';
+            textBox.style.fontSize = size + 'px';
+        }
+
+        // Funciones de drag & drop (simplificadas)
+        function handleMouseDown(e) {
+            if (e.target.classList.contains('resize-handle')) return;
+            
+            isDragging = true;
+            dragElement = e.target.closest('.text-box');
+            dragElement.classList.add('dragging');
+            
+            const rect = memeCanvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            
+            const textBoxRect = dragElement.getBoundingClientRect();
+            startLeft = textBoxRect.left - rect.left;
+            startTop = textBoxRect.top - rect.top;
+            
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            e.preventDefault();
+        }
+
+        function handleMouseMove(e) {
+            if (!isDragging && !isResizing) return;
+            
+            const rect = memeCanvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            
+            if (isDragging && dragElement) {
+                const deltaX = currentX - startX;
+                const deltaY = currentY - startY;
+                
+                const newLeft = startLeft + deltaX;
+                const newTop = startTop + deltaY;
+                
+                // Convertir a porcentajes
+                const leftPercent = (newLeft / rect.width) * 100;
+                const topPercent = (newTop / rect.height) * 100;
+                
+                // Limitar dentro del canvas
+                const clampedLeft = Math.max(0, Math.min(90, leftPercent));
+                const clampedTop = Math.max(0, Math.min(90, topPercent));
+                
+                // Actualizar posición visual
+                dragElement.style.left = clampedLeft + '%';
+                dragElement.style.top = clampedTop + '%';
+                
+                // Actualizar inputs
+                const textNum = dragElement.getAttribute('data-text');
+                document.getElementById(`text${textNum}_x`).value = clampedLeft.toFixed(1);
+                document.getElementById(`text${textNum}_y`).value = clampedTop.toFixed(1);
+                
+                // Actualizar configuración local
+                const index = parseInt(textNum) - 1;
+                templateData.textBoxes[index].x = clampedLeft;
+                templateData.textBoxes[index].y = clampedTop;
+            }
+        }
+
+        function handleMouseUp() {
+            if (dragElement) {
+                dragElement.classList.remove('dragging');
+            }
+            isDragging = false;
+            isResizing = false;
+            dragElement = null;
+            
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        }
+
+        function handleResizeStart(e) {
+            isResizing = true;
+            dragElement = e.target.closest('.text-box');
+            
+            const rect = memeCanvas.getBoundingClientRect();
+            const textBoxRect = dragElement.getBoundingClientRect();
+            
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            startWidth = textBoxRect.width;
+            startHeight = textBoxRect.height;
+            
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            e.preventDefault();
+        }
+
+        // Manejar envío del formulario
+        document.getElementById('editorForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const saveButton = document.querySelector('.save-button');
+            saveButton.disabled = true;
+            saveButton.textContent = 'Guardando...';
+            
+            const formData = {
+                num_text_boxes: templateData.num_text_boxes
+            };
+            
+            // Recopilar datos de todas las cajas de texto
+            for (let i = 1; i <= 5; i++) {
+                const labelInput = document.getElementById(`text${i}_label`);
+                const xInput = document.getElementById(`text${i}_x`);
+                const yInput = document.getElementById(`text${i}_y`);
+                const widthInput = document.getElementById(`text${i}_width`);
+                const heightInput = document.getElementById(`text${i}_height`);
+                const sizeInput = document.getElementById(`text${i}_size`);
+                
+                if (labelInput) formData[`text${i}_label`] = labelInput.value;
+                if (xInput) formData[`text${i}_x`] = parseFloat(xInput.value);
+                if (yInput) formData[`text${i}_y`] = parseFloat(yInput.value);
+                if (widthInput) formData[`text${i}_width`] = parseFloat(widthInput.value);
+                if (heightInput) formData[`text${i}_height`] = parseFloat(heightInput.value);
+                if (sizeInput) formData[`text${i}_size`] = parseInt(sizeInput.value);
+            }
+
+            try {
+                const response = await fetch('/admin/meme/{{template.id}}/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    saveButton.textContent = '✅ Guardado!';
+                    setTimeout(() => {
+                        saveButton.disabled = false;
+                        saveButton.textContent = '💾 Guardar Configuración';
+                    }, 2000);
+                } else {
+                    throw new Error(result.error || 'Error desconocido');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al guardar: ' + error.message);
+                saveButton.disabled = false;
+                saveButton.textContent = '💾 Guardar Configuración';
+            }
+        });
+
+        // Prevenir selección de texto durante el drag
+        memeCanvas.addEventListener('selectstart', e => e.preventDefault());
+    </script>
+</body>
+</html>

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo - Make it Meme</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            margin: 0;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+                margin: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+                margin: 5px;
+            }
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #e74c3c;
+            text-shadow: 2px 2px #000;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.1rem;
+            }
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid #3498db;
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .admin-info {
+                font-size: 0.6rem;
+            }
+            
+            .logout-btn {
+                font-size: 0.5rem;
+                padding: 0.5rem 0.8rem;
+            }
+        }
+
+        .admin-info {
+            font-size: 0.7rem;
+            color: #f1c40f;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .admin-nav {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.8rem;
+            }
+            
+            .nav-button {
+                font-size: 0.6rem;
+                padding: 0.7rem 1rem;
+                width: 100%;
+                max-width: 300px;
+                text-align: center;
+            }
+        }
+
+        .nav-button {
+            background: #3498db;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-button:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .memes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Estilos responsivos para el grid y las tarjetas */
+        @media (max-width: 768px) {
+            .memes-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 1.5rem;
+            }
+            
+            .meme-card {
+                padding: 0.8rem;
+            }
+            
+            .meme-name {
+                font-size: 0.7rem;
+            }
+            
+            .position-info {
+                font-size: 0.45rem;
+            }
+            
+            .edit-button {
+                font-size: 0.55rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .memes-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .meme-card {
+                padding: 0.6rem;
+            }
+            
+            .meme-name {
+                font-size: 0.65rem;
+            }
+            
+            .position-info {
+                font-size: 0.4rem;
+            }
+            
+            .edit-button {
+                font-size: 0.5rem;
+                padding: 0.3rem 0.6rem;
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .container {
+                padding: 1rem;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 1.2rem;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .admin-nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-button {
+                width: 100%;
+                max-width: 300px;
+                text-align: center;
+            }
+        }
+
+        .meme-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .meme-card:hover {
+            transform: translateY(-5px);
+            border-color: #e74c3c;
+        }
+
+        .meme-card img {
+            width: 100%;
+            max-width: 200px;
+            height: auto;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .meme-card img {
+                max-width: 180px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .meme-card img {
+                max-width: 160px;
+            }
+        }
+
+        .meme-name {
+            font-size: 0.8rem;
+            color: #f1c40f;
+            margin-bottom: 1rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            max-width: 100%;
+            line-height: 1.2;
+        }
+
+        .position-info {
+            font-size: 0.5rem;
+            color: #95a5a6;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .edit-button {
+            background: #e74c3c;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .edit-button:hover {
+            background: #c0392b;
+        }
+
+        .back-link {
+            color: #95a5a6;
+            text-decoration: none;
+            font-size: 0.6rem;
+            margin-top: 2rem;
+            display: inline-block;
+        }
+
+        .back-link:hover {
+            color: #f1c40f;
+        }
+
+        @media (max-width: 768px) {
+            .back-link {
+                font-size: 0.55rem;
+                text-align: center;
+                display: block;
+                margin-top: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .back-link {
+                font-size: 0.5rem;
+                margin-top: 1rem;
+            }
+        }
+
+        /* Estilos para el paginador */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .pagination-info {
+            font-size: 0.7rem;
+            color: #bdc3c7;
+            margin: 0 1rem;
+        }
+
+        .page-link {
+            background: #3498db;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            padding: 0.5rem 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .page-link:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .page-link.active {
+            background: #e74c3c;
+            cursor: default;
+        }
+
+        .page-link.active:hover {
+            transform: none;
+        }
+
+        .page-link.disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .page-link.disabled:hover {
+            transform: none;
+        }
+
+        /* Estilos responsivos para el paginador */
+        @media (max-width: 768px) {
+            .pagination {
+                gap: 0.3rem;
+                margin: 1.5rem 0;
+            }
+            
+            .pagination-info {
+                font-size: 0.6rem;
+                margin: 0 0.5rem;
+                text-align: center;
+            }
+            
+            .page-link {
+                font-size: 0.5rem;
+                padding: 0.4rem 0.6rem;
+                min-width: 35px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pagination {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .pagination-info {
+                order: -1;
+                margin-bottom: 0.5rem;
+            }
+            
+            .page-link {
+                font-size: 0.5rem;
+                padding: 0.3rem 0.5rem;
+                min-width: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Panel Administrativo de Memes 🔧</h1>
+        {% if pagination.total > 0 %}
+        <div style="text-align: center; margin-bottom: 1rem; font-size: 0.8rem; color: #bdc3c7; word-wrap: break-word; overflow-wrap: break-word;">
+            📊 Total de memes: {{ pagination.total }}
+        </div>
+        {% endif %}
+        
+        <div class="admin-header">
+            <div class="admin-info">
+                👑 Administrador Conectado
+            </div>
+            <a href="/admin/logout" class="logout-btn">
+                🚪 Cerrar Sesión
+            </a>
+        </div>
+        
+        <div class="admin-nav">
+            <a href="/admin/meme/add" class="nav-button">📤 Subir Meme</a>
+            <a href="/" class="nav-button">🏠 Volver al Juego</a>
+        </div>
+
+        <div class="memes-grid">
+            {% for template in templates %}
+            <div class="meme-card">
+                <img src="/admin/image/{{template.id}}" alt="{{template.name}}" 
+                     onerror="this.style.border='2px solid red';">
+                <div class="meme-name">{{template.name}}</div>
+                <div class="position-info">
+                    📊 <strong>Cajas de texto: {{template.num_text_boxes if template.num_text_boxes else 2}}</strong><br><br>
+                    
+                    <strong>{{template.text1_label}}:</strong><br>
+                    Pos: ({{template.text1_x|round(1)}}%, {{template.text1_y|round(1)}}%)<br>
+                    Tamaño: {{template.text1_size}}px<br><br>
+                    
+                    <strong>{{template.text2_label}}:</strong><br>
+                    Pos: ({{template.text2_x|round(1)}}%, {{template.text2_y|round(1)}}%)<br>
+                    Tamaño: {{template.text2_size}}px<br>
+                    
+                    {% if template.num_text_boxes and template.num_text_boxes >= 3 %}
+                    <br><strong>{{template.text3_label if template.text3_label else 'Texto 3'}}:</strong><br>
+                    Pos: ({{template.text3_x|round(1) if template.text3_x else 50.0}}%, {{template.text3_y|round(1) if template.text3_y else 50.0}}%)<br>
+                    Tamaño: {{template.text3_size if template.text3_size else 24}}px<br>
+                    {% endif %}
+                    
+                    {% if template.num_text_boxes and template.num_text_boxes >= 4 %}
+                    <br><strong>{{template.text4_label if template.text4_label else 'Texto 4'}}:</strong><br>
+                    Pos: ({{template.text4_x|round(1) if template.text4_x else 25.0}}%, {{template.text4_y|round(1) if template.text4_y else 35.0}}%)<br>
+                    Tamaño: {{template.text4_size if template.text4_size else 24}}px<br>
+                    {% endif %}
+                    
+                    {% if template.num_text_boxes and template.num_text_boxes >= 5 %}
+                    <br><strong>{{template.text5_label if template.text5_label else 'Texto 5'}}:</strong><br>
+                    Pos: ({{template.text5_x|round(1) if template.text5_x else 75.0}}%, {{template.text5_y|round(1) if template.text5_y else 65.0}}%)<br>
+                    Tamaño: {{template.text5_size if template.text5_size else 24}}px<br>
+                    {% endif %}
+                    <br>
+                    
+                    🖼️ Imagen: {{template.image_width}}x{{template.image_height}}px
+                    {% if template.image_data %}
+                    <br><span style="color: #2ecc71;">📦 Almacenada en DB</span>
+                    {% elif template.image_path %}
+                    <br><span style="color: #f39c12;">📁 Archivo local</span>
+                    {% endif %}
+                </div>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+                    <a href="/admin/dynamic-editor/{{template.id}}" class="edit-button" style="background: #27ae60;">
+                        ⚙️ Editor Dinámico
+                    </a>
+                    <button onclick="deleteMeme({{template.id}}, '{{template.name}}')" class="edit-button" style="background: #e74c3c;">
+                        🗑️ Eliminar
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Paginador -->
+        <div class="pagination">
+            {% if pagination.pages > 1 %}
+                <!-- Primera página -->
+                {% if pagination.has_prev %}
+                    <a href="{{ url_for('admin.admin_panel', page=1) }}" class="page-link">⏮️</a>
+                    <a href="{{ url_for('admin.admin_panel', page=pagination.prev_num) }}" class="page-link">◀️</a>
+                {% else %}
+                    <span class="page-link disabled">⏮️</span>
+                    <span class="page-link disabled">◀️</span>
+                {% endif %}
+
+                <!-- Información de página -->
+                <span class="pagination-info">
+                    Página {{ pagination.page }} de {{ pagination.pages }}
+                    <br>
+                    <small>Mostrando {{ pagination.items|length }} de {{ pagination.total }} memes</small>
+                </span>
+
+                <!-- Última página -->
+                {% if pagination.has_next %}
+                    <a href="{{ url_for('admin.admin_panel', page=pagination.next_num) }}" class="page-link">▶️</a>
+                    <a href="{{ url_for('admin.admin_panel', page=pagination.pages) }}" class="page-link">⏭️</a>
+                {% else %}
+                    <span class="page-link disabled">▶️</span>
+                    <span class="page-link disabled">⏭️</span>
+                {% endif %}
+            {% else %}
+                <!-- Solo una página -->
+                <span class="pagination-info">
+                    <small>Mostrando todos los {{ pagination.total }} memes</small>
+                </span>
+            {% endif %}
+        </div>
+
+        <a href="/" class="back-link">← Volver al juego</a>
+    </div>
+
+    <script>
+        function deleteMeme(memeId, memeName) {
+            if (confirm(`¿Estás seguro de que quieres eliminar el meme "${memeName}"?\n\nEsta acción no se puede deshacer.`)) {
+                fetch(`/admin/meme/${memeId}/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Meme eliminado correctamente');
+                        location.reload();
+                    } else {
+                        alert('Error al eliminar: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al eliminar el meme');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

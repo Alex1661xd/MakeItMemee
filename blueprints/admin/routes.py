@@ -1,4 +1,3 @@
-
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session
 from models import db, MemeTemplate
 from werkzeug.utils import secure_filename
@@ -61,28 +60,89 @@ def admin_panel():
                          templates=templates, 
                          pagination=pagination)
 
-=======
-from flask import render_template, request, redirect, url_for, session
-from . import admin_bp
-from models import db, User
+@admin_bp.route("/meme/<int:meme_id>")
+@require_admin_auth
+def edit_meme_positions(meme_id):
+    """Editar posiciones de texto de un meme específico"""
+    template = MemeTemplate.query.get_or_404(meme_id)
+    return render_template('admin/edit_meme.html', template=template)
 
-@admin_bp.route('/login', methods=['GET', 'POST'])
-def admin_login():
-    if request.method == 'POST':
-        # Lógica de login de admin
-        pass
+@admin_bp.route("/meme/<int:meme_id>/delete", methods=["POST"])
+@require_admin_auth
+def delete_meme(meme_id):
+    """Eliminar un meme template"""
+    template = MemeTemplate.query.get_or_404(meme_id)
     
-    return render_template('admin/login.html')
+    try:
+        # Eliminar archivo de imagen si existe
+        if template.image_path and os.path.exists(template.image_path):
+            os.remove(template.image_path)
+        
+        # Eliminar de la base de datos
+        db.session.delete(template)
+        db.session.commit()
+        
+        return jsonify({
+            "success": True,
+            "message": "Meme eliminado correctamente"
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
-@admin_bp.route('/panel')
-def admin_panel():
-    if 'user_id' not in session:
-        return redirect(url_for('admin.admin_login'))
+@admin_bp.route("/meme/<int:meme_id>/update", methods=["POST"])
+@require_admin_auth
+def update_meme_positions(meme_id):
+    """Actualizar posiciones de texto de un meme"""
+    template = MemeTemplate.query.get_or_404(meme_id)
     
-    # Verificar si es admin
-    user = User.query.get(session['user_id'])
-    if not user:
-        return redirect(url_for('admin.admin_login'))
-    
-    return render_template('admin/panel.html')
-
+    try:
+        # Actualizar número de cajas de texto si se provee
+        if request.json.get('num_text_boxes'):
+            template.num_text_boxes = int(request.json.get('num_text_boxes'))
+        
+        # Actualizar etiquetas y posiciones para cada caja de texto
+        for i in range(1, 6):  # text1 a text5
+            label_key = f'text{i}_label'
+            x_key = f'text{i}_x'
+            y_key = f'text{i}_y'
+            size_key = f'text{i}_size'
+            width_key = f'text{i}_width'
+            height_key = f'text{i}_height'
+            
+            if request.json.get(label_key):
+                setattr(template, label_key, request.json.get(label_key))
+            if request.json.get(x_key) is not None:
+                setattr(template, x_key, float(request.json.get(x_key)))
+            if request.json.get(y_key) is not None:
+                setattr(template, y_key, float(request.json.get(y_key)))
+            if request.json.get(size_key):
+                setattr(template, size_key, int(request.json.get(size_key)))
+            if request.json.get(width_key) is not None:
+                setattr(template, width_key, float(request.json.get(width_key)))
+            if request.json.get(height_key) is not None:
+                setattr(template, height_key, float(request.json.get(height_key)))
+        
+        # Actualizar dimensiones de imagen si se proveen
+        if request.json.get('image_width'):
+            template.image_width = int(request.json.get('image_width'))
+        if request.json.get('image_height'):
+            template.image_height = int(request.json.get('image_height'))
+        
+        db.session.commit()
+        
+        return jsonify({
+            "success": True,
+            "message": "Posiciones actualizadas correctamente"
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500

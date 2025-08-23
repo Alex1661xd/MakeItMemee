@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make it Meme - Nueva Partida</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: white;
+            text-align: center;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            max-width: 90%;
+            width: 500px;
+            border: 3px solid #fff;
+        }
+
+        .game-code {
+            font-size: 2rem;
+            margin: 2rem 0;
+            color: #feca57;
+            text-shadow: 2px 2px #000;
+            letter-spacing: 5px;
+        }
+
+        .timer {
+            font-size: 1.5rem;
+            color: #ff6b6b;
+            margin: 1rem 0;
+        }
+
+        .players-count {
+            font-size: 0.8rem;
+            color: #48dbfb;
+            margin: 1rem 0;
+        }
+
+        .waiting-text {
+            font-size: 0.7rem;
+            color: #1dd1a1;
+            margin: 1rem 0;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
+
+        .player-list {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #fff;
+        }
+
+        .player {
+            font-size: 0.6rem;
+            margin: 0.5rem 0;
+            color: #fff;
+        }
+
+        .back-button {
+            color: #ffcccc;
+            text-decoration: none;
+            font-size: 0.6rem;
+            margin-top: 1rem;
+            display: inline-block;
+            transition: color 0.2s;
+        }
+
+        .back-button:hover {
+            color: #feca57;
+        }
+
+        .navigation-buttons {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem;
+                max-width: 95%;
+                width: 90%;
+            }
+            
+            .game-code {
+                font-size: 1.5rem;
+                letter-spacing: 3px;
+            }
+            
+            .timer {
+                font-size: 1.2rem;
+            }
+            
+            .players-count {
+                font-size: 0.7rem;
+            }
+            
+            .waiting-text {
+                font-size: 0.6rem;
+            }
+            
+            .player-list {
+                max-height: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 1.5rem;
+                max-width: 98%;
+                width: 95%;
+            }
+            
+            .game-code {
+                font-size: 1.2rem;
+                letter-spacing: 2px;
+            }
+            
+            .timer {
+                font-size: 1rem;
+            }
+            
+            .players-count {
+                font-size: 0.6rem;
+            }
+            
+            .waiting-text {
+                font-size: 0.5rem;
+            }
+            
+            .player-list {
+                max-height: 120px;
+                padding: 0.8rem;
+            }
+            
+            .player {
+                font-size: 0.5rem;
+            }
+            
+            .navigation-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 style="font-size: 1rem; margin-bottom: 1rem;">🎮 Nueva Partida 🎮</h1>
+        <div class="game-info">
+            <div class="game-code" id="gameCode">{{ game_code }}</div>
+            <p class="waiting-text">Esperando jugadores...</p>
+            <div class="timer" id="timer">2:30</div>
+            <div class="players-count" id="playersCount">
+                Jugadores: <span id="currentPlayers">1</span>/15
+            </div>
+        </div>
+        <div class="player-list" id="playerList">
+            {% for player in players %}
+                <div class="player">
+                    👾 {{ player.nickname }} {% if player.nickname == creator_nickname %}(Anfitrión){% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        
+        {% if is_creator %}
+        <button id="startGameBtn" class="start-button" style="display: none;">
+            ¡Iniciar Partida! 🚀
+        </button>
+        {% endif %}
+        
+        <div class="navigation-buttons">
+            <a href="/" class="back-button">← Volver al menú</a>
+            <a href="/auth/logout" class="back-button">↻ Cambiar nickname</a>
+        </div>
+        
+        <style>
+        .start-button {
+            display: block;
+            width: 100%;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #1dd1a1;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .start-button:hover {
+            background: #10ac84;
+            transform: scale(1.05);
+        }
+        
+        .start-button:disabled {
+            background: #636e72;
+            cursor: not-allowed;
+            transform: none;
+        }
+        </style>
+    </div>
+
+    <script>
+        const gameCode = '{{ game_code }}';
+        const playersCountSpan = document.getElementById('currentPlayers');
+        const playerList = document.getElementById('playerList');
+        const timerElement = document.getElementById('timer');
+        
+        function updateGameStatus() {
+            fetch('/game/check/' + gameCode)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'cancelled') {
+                        window.location.href = '/';
+                        return;
+                    }
+                    
+                    // Actualizar tiempo
+                    const minutes = Math.floor(data.timeRemaining / 60);
+                    const seconds = data.timeRemaining % 60;
+                    timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    
+                    // Actualizar contador de jugadores
+                    playersCountSpan.textContent = data.playerCount;
+                    
+                    // Actualizar lista de jugadores
+                    playerList.innerHTML = '';
+                    data.players.forEach(player => {
+                        const playerElement = document.createElement('div');
+                        playerElement.className = 'player';
+                        playerElement.textContent = `👾 ${player.nickname} ${player.isCreator ? '(Anfitrión)' : ''}`;
+                        playerList.appendChild(playerElement);
+                    });
+                    
+                    // Mostrar u ocultar botón de inicio para el creador
+                    const startButton = document.getElementById('startGameBtn');
+                    if (startButton) {
+                        if (data.canStart && data.isCreator) {
+                            startButton.style.display = 'block';
+                        } else {
+                            startButton.style.display = 'none';
+                        }
+                    }
+                    
+                    // Si el tiempo se agotó o la partida inició, redirigir
+                    if (data.status === 'started') {
+                        window.location.href = '/game/play/' + gameCode;
+                    } else if (data.timeRemaining <= 0) {
+                        window.location.href = '/game/play/' + gameCode;
+                    }
+                    
+                    // Manejar redirección si viene en la respuesta
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                });
+        }
+
+        // Actualizar estado cada 3 segundos y cuando se reciban eventos
+        let updateInterval = setInterval(updateGameStatus, 4000);
+        
+        // Socket.IO para actualizaciones en tiempo real
+        const socket = io({
+            path: '/socket.io',
+            transports: ['websocket'],
+            autoConnect: true,
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            reconnectionAttempts: 5
+        });
+        
+        socket.on('connect', () => {
+            console.log('Conectado al servidor Socket.IO');
+            socket.emit('join', { code: gameCode });
+        });
+        
+        socket.on('connect_error', (error) => {
+            console.error('Error de conexión Socket.IO:', error);
+            // Intentar reconectar después de un error
+            setTimeout(() => {
+                socket.connect();
+            }, 1000);
+        });
+        
+        socket.on('disconnect', () => {
+            console.log('Desconectado del servidor Socket.IO');
+        });
+        
+        socket.on('update', () => {
+            console.log('Actualización recibida');
+            updateGameStatus();
+        });
+        
+        socket.on('game_started', () => {
+            console.log('Partida iniciada');
+            window.location.href = '/game/play/' + gameCode;
+        });
+        
+        // Manejar botón de inicio manual
+        const startButton = document.getElementById('startGameBtn');
+        if (startButton) {
+            startButton.addEventListener('click', () => {
+                startButton.disabled = true;
+                startButton.textContent = 'Iniciando...';
+                
+                fetch('/game/start/' + gameCode, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/game/play/' + gameCode;
+                    } else {
+                        alert(data.error || 'Error al iniciar la partida');
+                        startButton.disabled = false;
+                        startButton.textContent = '¡Iniciar Partida! 🚀';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al iniciar la partida');
+                    startButton.disabled = false;
+                    startButton.textContent = '¡Iniciar Partida! 🚀';
+                });
+            });
+        }
+    </script>
+</body>
+</html>

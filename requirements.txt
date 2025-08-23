@@ -1,0 +1,11 @@
+flask
+flask_sqlalchemy
+flask_migrate
+flask_wtf
+python-dotenv
+# psycopg2-binary  # Solo necesario para PostgreSQL en producción
+flask-socketio
+redis
+Pillow
+# gunicorn  # Solo necesario para producción
+eventlet

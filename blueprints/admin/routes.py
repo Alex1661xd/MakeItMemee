@@ -266,3 +266,65 @@ def upload_meme():
             "success": False,
             "error": str(e)
         }), 500
+
+@admin_bp.route("/editor/<int:meme_id>")
+@require_admin_auth
+def visual_editor(meme_id):
+    """Editor visual drag & drop para posicionar texto"""
+    template = MemeTemplate.query.get_or_404(meme_id)
+    return render_template('admin/visual_editor.html', template=template)
+
+@admin_bp.route("/dynamic-editor/<int:meme_id>")
+@require_admin_auth
+def dynamic_editor(meme_id):
+    """Editor dinámico para configurar número variable de cajas de texto"""
+    template = MemeTemplate.query.get_or_404(meme_id)
+    return render_template('admin/dynamic_editor.html', template=template)
+
+@admin_bp.route("/image/<int:meme_id>")
+@require_admin_auth
+def serve_meme_image(meme_id):
+    """Servir imagen de meme desde la base de datos (solo para admin)"""
+    template = MemeTemplate.query.get_or_404(meme_id)
+    
+    # Si tiene imagen en Base64, usarla
+    if template.image_data:
+        from flask import Response
+        image_data = base64.b64decode(template.image_data)
+        return Response(
+            image_data,
+            mimetype=template.image_mimetype or 'image/jpeg'
+        )
+    
+    # Si solo tiene path, redirigir (compatibilidad)
+    elif template.image_path:
+        return redirect(f"/{template.image_path}")
+    
+    else:
+        return "Imagen no encontrada", 404
+
+@admin_bp.route("/public-image/<int:meme_id>")
+def serve_public_meme_image(meme_id):
+    """Servir imagen de meme públicamente (para el juego)"""
+    template = MemeTemplate.query.get_or_404(meme_id)
+    
+    # Si tiene imagen en Base64, usarla
+    if template.image_data:
+        from flask import Response
+        image_data = base64.b64decode(template.image_data)
+        return Response(
+            image_data,
+            mimetype=template.image_mimetype or 'image/jpeg'
+        )
+    
+    # Si solo tiene path, redirigir (compatibilidad)
+    elif template.image_path:
+        return redirect(f"/{template.image_path}")
+    
+    else:
+        return "Imagen no encontrada", 404
+
+@admin_bp.route("/meme/add", methods=["GET"])
+def add_meme():
+    """Mostrar formulario para agregar meme"""
+    return render_template('admin/upload_meme.html')

@@ -59,7 +59,8 @@ def admin_panel():
     return render_template('admin/panel.html', 
                          templates=templates, 
                          pagination=pagination)
-@a@admin_bp.route("/meme/<int:meme_id>")
+
+@admin_bp.route("/meme/<int:meme_id>")
 @require_admin_auth
 def edit_meme_positions(meme_id):
     """Editar posiciones de texto de un meme específico"""
@@ -137,6 +138,126 @@ def update_meme_positions(meme_id):
         return jsonify({
             "success": True,
             "message": "Posiciones actualizadas correctamente"
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+def compress_image(image_data, max_width=800, quality=85):
+    """Comprime una imagen y la convierte a Base64"""
+    try:
+        # Abrir imagen desde bytes
+        img = Image.open(io.BytesIO(image_data))
+        
+        # Convertir a RGB si es necesario (para PNGs con transparencia)
+        if img.mode in ('RGBA', 'LA', 'P'):
+            background = Image.new('RGB', img.size, (255, 255, 255))
+            if img.mode == 'P':
+                img = img.convert('RGBA')
+            background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+            img = background
+        
+        # Redimensionar si es muy grande
+        if img.width > max_width:
+            ratio = max_width / img.width
+            new_height = int(img.height * ratio)
+            img = img.resize((max_width, new_height), Image.Resampling.LANCZOS)
+        
+        # Guardar como JPEG comprimido
+        output = io.BytesIO()
+        img.save(output, format='JPEG', quality=quality, optimize=True)
+        compressed_data = output.getvalue()
+        
+        # Convertir a Base64
+        base64_data = base64.b64encode(compressed_data).decode('utf-8')
+        
+        return base64_data, img.width, img.height
+        
+    except Exception as e:
+        raise Exception(f"Error comprimiendo imagen: {str(e)}")
+
+@admin_bp.route("/upload", methods=["POST"])
+@require_admin_auth
+def upload_meme():
+    """Subir nueva plantilla de meme con imagen"""
+    try:
+        if 'image' not in request.files:
+            return jsonify({"success": False, "error": "No se subió ninguna imagen"}), 400
+        
+        file = request.files['image']
+        name = request.form.get('name', '').strip()
+        
+        if file.filename == '':
+            return jsonify({"success": False, "error": "No se seleccionó ningún archivo"}), 400
+        
+        if not name:
+            # Usar el nombre del archivo sin extensión
+            name = os.path.splitext(file.filename)[0]
+        
+        # Validar tipo de archivo
+        if not file.content_type.startswith('image/'):
+            return jsonify({"success": False, "error": "El archivo debe ser una imagen"}), 400
+        
+        # Leer datos de la imagen
+        image_data = file.read()
+        
+        # Comprimir imagen
+        base64_data, width, height = compress_image(image_data)
+        
+        # Crear plantilla en la base de datos
+        template = MemeTemplate(
+            name=name,
+            image_data=base64_data,
+            image_filename=secure_filename(file.filename),
+            image_mimetype=file.content_type,
+            image_width=width,
+            image_height=height,
+            num_text_boxes=2,  # Por defecto usar 2 cajas
+            text1_label="Texto 1",
+            text1_x=50.0,
+            text1_y=20.0,
+            text1_size=24,
+            text1_width=30.0,
+            text1_height=10.0,
+            text2_label="Texto 2",
+            text2_x=50.0,
+            text2_y=80.0,
+            text2_size=24,
+            text2_width=30.0,
+            text2_height=10.0,
+            text3_label="Texto 3",
+            text3_x=50.0,
+            text3_y=50.0,
+            text3_size=24,
+            text3_width=30.0,
+            text3_height=10.0,
+            text4_label="Texto 4",
+            text4_x=25.0,
+            text4_y=35.0,
+            text4_size=24,
+            text4_width=30.0,
+            text4_height=10.0,
+            text5_label="Texto 5",
+            text5_x=75.0,
+            text5_y=65.0,
+            text5_size=24,
+            text5_width=30.0,
+            text5_height=10.0,
+            active=True
+        )
+        
+        db.session.add(template)
+        db.session.commit()
+        
+        return jsonify({
+            "success": True,
+            "message": "Meme subido correctamente",
+            "id": template.id,
+            "redirect": f"/admin/dynamic-editor/{template.id}"
         })
         
     except Exception as e:

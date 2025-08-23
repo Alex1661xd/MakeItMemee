@@ -95,7 +95,7 @@ def main():
             init_ok += 1
     
     # Verificar archivos de rutas
-    print("\n🛣️ Archivos de rutas:")
+    print("\n Archivos de rutas:")
     route_files = [
         ("blueprints/auth/routes.py", "Rutas de autenticación"),
         ("blueprints/game/routes.py", "Rutas del juego"),
@@ -115,7 +115,7 @@ def main():
     print(f"📊 Resumen: {total_ok}/{total_checks} verificaciones exitosas")
     
     if total_ok == total_checks:
-        print("🎉 ¡Configuración completa! El proyecto está listo para ejecutarse.")
+        print("¡Configuración completa! El proyecto está listo para ejecutarse.")
         print("\n📝 Próximos pasos:")
         if system == "Windows":
             print("1. Crear entorno virtual: python -m venv venv")
@@ -130,7 +130,7 @@ def main():
             print("4. Ejecutar: python run.py")
             print("5. O usar script automático: ./start.sh")
     else:
-        print("⚠️ Algunas verificaciones fallaron. Revisa los archivos faltantes.")
+        print("Algunas verificaciones fallaron. Revisa los archivos faltantes.")
         return 1
     
     return 0

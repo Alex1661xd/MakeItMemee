@@ -6,6 +6,7 @@ Verifica que todos los archivos de configuración estén en su lugar
 
 import os
 import sys
+import platform
 
 def check_file_exists(filepath, description):
     """Verifica si un archivo existe"""
@@ -29,7 +30,11 @@ def main():
     print("🔍 Verificando configuración de Make It Meme...")
     print("=" * 50)
     
-    # Archivos de configuración principales
+    # Detectar sistema operativo
+    system = platform.system()
+    print(f"🖥️ Sistema operativo detectado: {system}")
+    
+    # Archivos de configuración principales (siempre necesarios)
     required_files = [
         ("app.py", "Aplicación principal Flask"),
         ("config.py", "Archivo de configuración"),
@@ -40,9 +45,16 @@ def main():
         (".gitignore", "Archivo Git ignore"),
         ("Procfile", "Configuración Heroku"),
         ("runtime.txt", "Versión de Python"),
-        ("start.sh", "Script de inicio"),
         ("README.md", "Documentación del proyecto")
     ]
+    
+    # Archivos específicos del sistema operativo
+    if system == "Windows":
+        required_files.append(("start.ps1", "Script de inicio Windows"))
+        print("📝 Verificando archivos para Windows...")
+    elif system in ["Linux", "Darwin"]:  # Linux o macOS
+        required_files.append(("start.sh", "Script de inicio Linux/Mac"))
+        print("📝 Verificando archivos para Linux/Mac...")
     
     # Directorios requeridos
     required_dirs = [
@@ -105,11 +117,18 @@ def main():
     if total_ok == total_checks:
         print("🎉 ¡Configuración completa! El proyecto está listo para ejecutarse.")
         print("\n📝 Próximos pasos:")
-        print("1. Crear entorno virtual: python -m venv venv")
-        print("2. Activar entorno: venv\\Scripts\\activate (Windows) o source venv/bin/activate (Linux/Mac)")
-        print("3. Instalar dependencias: pip install -r requirements.txt")
-        print("4. Crear archivo .env con las variables de entorno")
-        print("5. Ejecutar: python run.py")
+        if system == "Windows":
+            print("1. Crear entorno virtual: python -m venv venv")
+            print("2. Activar entorno: venv\\Scripts\\activate")
+            print("3. Instalar dependencias: pip install -r requirements.txt")
+            print("4. Ejecutar: python run.py")
+            print("5. O usar script automático: .\\start.ps1")
+        else:
+            print("1. Crear entorno virtual: python -m venv venv")
+            print("2. Activar entorno: source venv/bin/activate")
+            print("3. Instalar dependencias: pip install -r requirements.txt")
+            print("4. Ejecutar: python run.py")
+            print("5. O usar script automático: ./start.sh")
     else:
         print("⚠️ Algunas verificaciones fallaron. Revisa los archivos faltantes.")
         return 1

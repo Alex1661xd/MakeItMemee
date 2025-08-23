@@ -44,6 +44,13 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+**⚠️ Problema Común**: Si ves el mensaje `Defaulting to user installation because normal site-packages is not writeable`, significa que las dependencias se están instalando globalmente en lugar del entorno virtual.
+
+**✅ Solución**: Usa este comando para forzar la instalación en el entorno virtual:
+```bash
+python -m pip install -r requirements.txt
+```
+
 5. Configurar variables de entorno (opcional):
 Crear un archivo `.env` con:
 ```
@@ -66,7 +73,7 @@ O usar el script de inicio:
 ./start.sh
 
 # En Windows (PowerShell):
-python start.sh
+.\start.ps1
 ```
 
 ## Configuración de Desarrollo
@@ -95,7 +102,8 @@ MakeItMemee/
 ├── models.py           # Modelos de base de datos
 ├── run.py              # Script de ejecución
 ├── requirements.txt    # Dependencias de Python
-├── start.sh            # Script de inicio
+├── start.sh            # Script de inicio (Linux/Mac)
+├── start.ps1           # Script de inicio (Windows)
 ├── verify_setup.py     # Verificación de configuración
 ├── blueprints/         # Módulos de la aplicación
 │   ├── admin/         # Panel de administrador
@@ -147,6 +155,22 @@ flask db upgrade
 pip install -r requirements.txt
 ```
 
+### Flask No Encontrado (Error Común)
+**Síntoma**: `ModuleNotFoundError: No module named 'flask'` a pesar de haber instalado las dependencias.
+
+**Causa**: Las dependencias se instalaron globalmente en lugar del entorno virtual.
+
+**Solución**:
+```bash
+# Asegúrate de que el entorno virtual esté activado (deberías ver (venv))
+# Luego usa este comando para forzar la instalación en el entorno virtual:
+python -m pip install -r requirements.txt
+
+# Verifica que Flask esté en el entorno virtual:
+pip show flask
+# Debería mostrar Location: ...\venv\Lib\site-packages
+```
+
 ### Error de Base de Datos
 ```bash
 # Eliminar archivo de base de datos existente
@@ -160,6 +184,14 @@ python run.py
 Cambiar el puerto en `run.py` o usar:
 ```bash
 PORT=5001 python run.py
+```
+
+### Problemas de Permisos en Windows
+Si tienes problemas para crear o escribir en el entorno virtual:
+```bash
+# Ejecutar PowerShell como Administrador
+# O usar la instalación global (menos recomendado):
+pip install --user -r requirements.txt
 ```
 
 ## Contribución

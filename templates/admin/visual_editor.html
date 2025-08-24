@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor Visual - {{template.name}}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            margin: 0;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #e74c3c;
+            text-shadow: 2px 2px #000;
+            margin-bottom: 2rem;
+        }
+
+        .editor-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        .canvas-area {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .meme-canvas {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+            border-radius: 8px;
+            overflow: visible;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            background: white;
+        }
+
+        .meme-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .text-box {
+            position: absolute;
+            border: 2px dashed #95a5a6;
+            background: rgba(255, 255, 255, 0.95);
+            color: #000;
+            font-weight: 500;
+            text-align: center;
+            text-shadow: none;
+            font-family: 'Roboto', Arial, Helvetica, sans-serif;
+            text-transform: none;
+            line-height: 1.15;
+            cursor: move;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            min-width: 100px;
+            min-height: 40px;
+            overflow: hidden;
+            word-wrap: break-word;
+            border-radius: 6px;
+            padding: 6px 8px;
+        }
+
+        .text-box:hover {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.3);
+            transform: scale(1.02);
+        }
+
+        .text-box.dragging {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.3);
+            z-index: 1000;
+        }
+
+        .text-box .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f1c40f;
+            border: 1px solid #000;
+            cursor: nw-resize;
+        }
+
+        .text-box .resize-handle.bottom-right {
+            bottom: -5px;
+            right: -5px;
+        }
+
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .control-section {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .control-section h3 {
+            font-size: 0.8rem;
+            color: #f1c40f;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.5rem;
+            color: #95a5a6;
+            margin-bottom: 0.3rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #f1c40f;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .preview-text {
+            background: #ffffff;
+            border: 1px solid #dfe6e9;
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .preview-text input {
+            background: transparent;
+            border: none;
+            color: #000;
+            width: 100%;
+            font-size: 0.85rem;
+            font-family: 'Roboto', Arial, Helvetica, sans-serif;
+        }
+
+        .save-button {
+            width: 100%;
+            background: #27ae60;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .save-button:hover {
+            background: #229954;
+            transform: scale(1.02);
+        }
+
+        .save-button:disabled {
+            background: #636e72;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-link {
+            color: #95a5a6;
+            text-decoration: none;
+            font-size: 0.6rem;
+            margin-top: 2rem;
+            display: inline-block;
+        }
+
+        .back-link:hover {
+            color: #f1c40f;
+        }
+
+        .instructions {
+            background: rgba(52, 152, 219, 0.2);
+            border: 1px solid #3498db;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            font-size: 0.5rem;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 1200px) {
+            .editor-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Editor Visual: {{template.name}} 🎨</h1>
+        
+        <div class="instructions">
+            📋 <strong>Instrucciones:</strong><br>
+            • Arrastra las cajas de texto amarillas para posicionarlas<br>
+            • Arrastra desde la esquina inferior derecha para redimensionar<br>
+            • Usa los controles de la derecha para ajustes precisos<br>
+            • El texto de prueba te ayuda a ver cómo se verá
+        </div>
+
+        <div class="editor-layout">
+            <div class="canvas-area">
+                <div class="meme-canvas" id="memeCanvas">
+                    <img src="/admin/image/{{template.id}}" alt="{{template.name}}" class="meme-image" id="memeImage">
+                    
+                    <!-- Caja de texto 1 -->
+                    <div class="text-box" id="textBox1" data-text="1">
+                        {{template.text1_label}}
+                        <div class="resize-handle bottom-right" data-text="1"></div>
+                    </div>
+                    
+                    <!-- Caja de texto 2 -->
+                    <div class="text-box" id="textBox2" data-text="2">
+                        {{template.text2_label}}
+                        <div class="resize-handle bottom-right" data-text="2"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <form id="editorForm">
+                    <!-- Controles Texto 1 -->
+                    <div class="control-section">
+                        <h3>🅰️ Texto 1</h3>
+                        
+                        <div class="form-group">
+                            <label>Etiqueta:</label>
+                            <input type="text" id="text1_label" value="{{template.text1_label}}" data-text="1">
+                        </div>
+                        
+                        <div class="preview-text">
+                            <label>Texto de prueba:</label>
+                            <input type="text" id="text1_sample" placeholder="Escribe para probar..." data-text="1">
+                        </div>
+                        
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label>X (%):</label>
+                                <input type="number" id="text1_x" value="{{template.text1_x}}" min="0" max="100" step="0.1" data-text="1">
+                            </div>
+                            <div class="form-group">
+                                <label>Y (%):</label>
+                                <input type="number" id="text1_y" value="{{template.text1_y}}" min="0" max="100" step="0.1" data-text="1">
+                            </div>
+                        </div>
+                        
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label>Ancho (%):</label>
+                                <input type="number" id="text1_width" value="{{template.text1_width}}" min="5" max="100" step="0.1" data-text="1">
+                            </div>
+                            <div class="form-group">
+                                <label>Alto (%):</label>
+                                <input type="number" id="text1_height" value="{{template.text1_height}}" min="5" max="100" step="0.1" data-text="1">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Tamaño fuente:</label>
+                            <input type="number" id="text1_size" value="{{template.text1_size}}" min="8" max="72" data-text="1">
+                        </div>
+                    </div>
+
+                    <!-- Controles Texto 2 -->
+                    <div class="control-section">
+                        <h3>🅱️ Texto 2</h3>
+                        
+                        <div class="form-group">
+                            <label>Etiqueta:</label>
+                            <input type="text" id="text2_label" value="{{template.text2_label}}" data-text="2">
+                        </div>
+                        
+                        <div class="preview-text">
+                            <label>Texto de prueba:</label>
+                            <input type="text" id="text2_sample" placeholder="Escribe para probar..." data-text="2">
+                        </div>
+                        
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label>X (%):</label>
+                                <input type="number" id="text2_x" value="{{template.text2_x}}" min="0" max="100" step="0.1" data-text="2">
+                            </div>
+                            <div class="form-group">
+                                <label>Y (%):</label>
+                                <input type="number" id="text2_y" value="{{template.text2_y}}" min="0" max="100" step="0.1" data-text="2">
+                            </div>
+                        </div>
+                        
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label>Ancho (%):</label>
+                                <input type="number" id="text2_width" value="{{template.text2_width}}" min="5" max="100" step="0.1" data-text="2">
+                            </div>
+                            <div class="form-group">
+                                <label>Alto (%):</label>
+                                <input type="number" id="text2_height" value="{{template.text2_height}}" min="5" max="100" step="0.1" data-text="2">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Tamaño fuente:</label>
+                            <input type="number" id="text2_size" value="{{template.text2_size}}" min="8" max="72" data-text="2">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="save-button">💾 Guardar Posiciones</button>
+                </form>
+            </div>
+        </div>
+
+        <a href="/admin" class="back-link">← Volver al panel</a>
+    </div>
+
+    <script>
+        let isDragging = false;
+        let isResizing = false;
+        let dragElement = null;
+        let startX, startY, startLeft, startTop, startWidth, startHeight;
+        
+        const memeCanvas = document.getElementById('memeCanvas');
+        const memeImage = document.getElementById('memeImage');
+        
+        // Inicializar posiciones cuando la imagen se carga
+        memeImage.onload = function() {
+            updateAllTextBoxes();
+        };
+        
+        // Si la imagen ya está cargada
+        if (memeImage.complete) {
+            updateAllTextBoxes();
+        }
+
+        // Función para actualizar todas las cajas de texto
+        function updateAllTextBoxes() {
+            updateTextBox(1);
+            updateTextBox(2);
+        }
+
+        // Función para actualizar posición y tamaño de una caja de texto
+        function updateTextBox(textNum) {
+            const textBox = document.getElementById(`textBox${textNum}`);
+            const x = parseFloat(document.getElementById(`text${textNum}_x`).value);
+            const y = parseFloat(document.getElementById(`text${textNum}_y`).value);
+            const width = parseFloat(document.getElementById(`text${textNum}_width`).value);
+            const height = parseFloat(document.getElementById(`text${textNum}_height`).value);
+            const size = parseInt(document.getElementById(`text${textNum}_size`).value);
+            const sample = document.getElementById(`text${textNum}_sample`).value;
+            const label = document.getElementById(`text${textNum}_label`).value;
+            
+            // Usar texto de prueba si existe, si no usar etiqueta
+            textBox.textContent = sample || label;
+            
+            // Aplicar posición y tamaño
+            textBox.style.left = x + '%';
+            textBox.style.top = y + '%';
+            textBox.style.width = width + '%';
+            textBox.style.height = height + '%';
+            textBox.style.fontSize = size + 'px';
+        }
+
+        // Event listeners para inputs
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', function() {
+                const textNum = this.getAttribute('data-text');
+                if (textNum) {
+                    updateTextBox(parseInt(textNum));
+                }
+            });
+        });
+
+        // Drag & Drop para las cajas de texto
+        document.querySelectorAll('.text-box').forEach(textBox => {
+            textBox.addEventListener('mousedown', handleMouseDown);
+        });
+
+        // Drag & Drop para los resize handles
+        document.querySelectorAll('.resize-handle').forEach(handle => {
+            handle.addEventListener('mousedown', function(e) {
+                e.stopPropagation();
+                handleResizeStart(e);
+            });
+        });
+
+        function handleMouseDown(e) {
+            if (e.target.classList.contains('resize-handle')) return;
+            
+            isDragging = true;
+            dragElement = e.target.closest('.text-box');
+            dragElement.classList.add('dragging');
+            
+            const rect = memeCanvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            
+            const textBoxRect = dragElement.getBoundingClientRect();
+            startLeft = textBoxRect.left - rect.left;
+            startTop = textBoxRect.top - rect.top;
+            
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            e.preventDefault();
+        }
+
+        function handleMouseMove(e) {
+            if (!isDragging && !isResizing) return;
+            
+            const rect = memeCanvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            
+            if (isDragging && dragElement) {
+                const deltaX = currentX - startX;
+                const deltaY = currentY - startY;
+                
+                const newLeft = startLeft + deltaX;
+                const newTop = startTop + deltaY;
+                
+                // Convertir a porcentajes
+                const leftPercent = (newLeft / rect.width) * 100;
+                const topPercent = (newTop / rect.height) * 100;
+                
+                // Limitar dentro del canvas
+                const clampedLeft = Math.max(0, Math.min(90, leftPercent));
+                const clampedTop = Math.max(0, Math.min(90, topPercent));
+                
+                // Actualizar posición visual
+                dragElement.style.left = clampedLeft + '%';
+                dragElement.style.top = clampedTop + '%';
+                
+                // Actualizar inputs
+                const textNum = dragElement.getAttribute('data-text');
+                document.getElementById(`text${textNum}_x`).value = clampedLeft.toFixed(1);
+                document.getElementById(`text${textNum}_y`).value = clampedTop.toFixed(1);
+            }
+            
+            if (isResizing && dragElement) {
+                const deltaX = currentX - startX;
+                const deltaY = currentY - startY;
+                
+                const newWidth = startWidth + deltaX;
+                const newHeight = startHeight + deltaY;
+                
+                // Convertir a porcentajes
+                const widthPercent = (newWidth / rect.width) * 100;
+                const heightPercent = (newHeight / rect.height) * 100;
+                
+                // Limitar tamaño mínimo y máximo
+                const clampedWidth = Math.max(10, Math.min(80, widthPercent));
+                const clampedHeight = Math.max(5, Math.min(50, heightPercent));
+                
+                // Actualizar tamaño visual
+                dragElement.style.width = clampedWidth + '%';
+                dragElement.style.height = clampedHeight + '%';
+                
+                // Actualizar inputs
+                const textNum = dragElement.getAttribute('data-text');
+                document.getElementById(`text${textNum}_width`).value = clampedWidth.toFixed(1);
+                document.getElementById(`text${textNum}_height`).value = clampedHeight.toFixed(1);
+            }
+        }
+
+        function handleMouseUp() {
+            if (dragElement) {
+                dragElement.classList.remove('dragging');
+            }
+            isDragging = false;
+            isResizing = false;
+            dragElement = null;
+            
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        }
+
+        function handleResizeStart(e) {
+            isResizing = true;
+            dragElement = e.target.closest('.text-box');
+            
+            const rect = memeCanvas.getBoundingClientRect();
+            const textBoxRect = dragElement.getBoundingClientRect();
+            
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            startWidth = textBoxRect.width;
+            startHeight = textBoxRect.height;
+            
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            e.preventDefault();
+        }
+
+        // Manejar envío del formulario
+        document.getElementById('editorForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const saveButton = document.querySelector('.save-button');
+            saveButton.disabled = true;
+            saveButton.textContent = 'Guardando...';
+            
+            const formData = {
+                text1_label: document.getElementById('text1_label').value,
+                text1_x: parseFloat(document.getElementById('text1_x').value),
+                text1_y: parseFloat(document.getElementById('text1_y').value),
+                text1_width: parseFloat(document.getElementById('text1_width').value),
+                text1_height: parseFloat(document.getElementById('text1_height').value),
+                text1_size: parseInt(document.getElementById('text1_size').value),
+                text2_label: document.getElementById('text2_label').value,
+                text2_x: parseFloat(document.getElementById('text2_x').value),
+                text2_y: parseFloat(document.getElementById('text2_y').value),
+                text2_width: parseFloat(document.getElementById('text2_width').value),
+                text2_height: parseFloat(document.getElementById('text2_height').value),
+                text2_size: parseInt(document.getElementById('text2_size').value)
+            };
+
+            try {
+                const response = await fetch('/admin/meme/{{template.id}}/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    saveButton.textContent = '✅ Guardado!';
+                    setTimeout(() => {
+                        saveButton.disabled = false;
+                        saveButton.textContent = '💾 Guardar Posiciones';
+                    }, 2000);
+                } else {
+                    throw new Error(result.error || 'Error desconocido');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al guardar: ' + error.message);
+                saveButton.disabled = false;
+                saveButton.textContent = '💾 Guardar Posiciones';
+            }
+        });
+
+        // Prevenir selección de texto durante el drag
+        memeCanvas.addEventListener('selectstart', e => e.preventDefault());
+    </script>
+</body>
+</html>

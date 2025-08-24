@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make it Meme - Podio Final</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            margin: 0;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            color: #feca57;
+            text-shadow: 2px 2px #000;
+            margin-bottom: 2rem;
+            margin-top: 1rem;
+            animation: glow 2s ease-in-out infinite alternate;
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 2px 2px #000, 0 0 10px #feca57; }
+            to { text-shadow: 2px 2px #000, 0 0 20px #feca57, 0 0 30px #feca57; }
+        }
+
+        .game-info {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #48dbfb;
+            margin-bottom: 4rem;
+            position: relative;
+            z-index: 9;
+        }
+
+        .podium-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            margin-bottom: 4rem;
+            margin-top: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 5;
+        }
+
+        .podium-place {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 3px solid;
+            transition: all 0.3s ease;
+            max-width: 300px;
+            width: 300px;
+            position: relative;
+            transform-origin: bottom center;
+        }
+
+        .podium-place.first {
+            border-color: #ffd700;
+            background: linear-gradient(145deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
+            order: 2;
+            transform: scale(1.1);
+        }
+
+        .podium-place.second {
+            border-color: #c0c0c0;
+            background: linear-gradient(145deg, rgba(192, 192, 192, 0.2), rgba(192, 192, 192, 0.1));
+            order: 1;
+        }
+
+        .podium-place.third {
+            border-color: #cd7f32;
+            background: linear-gradient(145deg, rgba(205, 127, 50, 0.2), rgba(205, 127, 50, 0.1));
+            order: 3;
+        }
+
+        .podium-place:hover {
+            transform: translateY(-10px) scale(1.05);
+        }
+
+        .podium-place.first:hover {
+            transform: translateY(-10px) scale(1.15);
+        }
+
+        .place-number {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 2px solid;
+            z-index: 6;
+        }
+
+        .place-number.first {
+            background: #ffd700;
+            color: #000;
+            border-color: #ffed4e;
+        }
+
+        .place-number.second {
+            background: #c0c0c0;
+            color: #000;
+            border-color: #e8e8e8;
+        }
+
+        .place-number.third {
+            background: #cd7f32;
+            color: #fff;
+            border-color: #ff9500;
+        }
+
+        .winner-meme {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            aspect-ratio: 1 / 1;
+        }
+
+        .winner-meme img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .meme-text-overlay {
+            position: absolute;
+            color: #000;
+            font-weight: 500;
+            text-align: center;
+            text-shadow: none;
+            font-family: 'Roboto', Arial, Helvetica, sans-serif;
+            text-transform: none;
+            line-height: 1.15;
+            word-wrap: break-word;
+            hyphens: auto;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 6px;
+            padding: 6px 8px;
+            box-sizing: border-box;
+        }
+
+        .winner-info {
+            font-size: 0.8rem;
+            color: #feca57;
+            margin-bottom: 0.5rem;
+        }
+
+        .winner-points {
+            font-size: 1.2rem;
+            color: #1dd1a1;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .winner-round {
+            font-size: 0.6rem;
+            color: #95a5a6;
+        }
+
+        .all-memes-section {
+            margin-top: 4rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #48dbfb;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px #000;
+        }
+
+        .memes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .meme-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #3498db;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .meme-card:hover {
+            transform: translateY(-5px);
+            border-color: #e74c3c;
+        }
+
+        .meme-card.top-3 {
+            border-width: 3px;
+        }
+
+        .meme-card.rank-1 { border-color: #ffd700; }
+        .meme-card.rank-2 { border-color: #c0c0c0; }
+        .meme-card.rank-3 { border-color: #cd7f32; }
+
+        .meme-rank {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .rank-1 .meme-rank { color: #ffd700; }
+        .rank-2 .meme-rank { color: #c0c0c0; }
+        .rank-3 .meme-rank { color: #cd7f32; }
+
+        .meme-preview {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+
+        .meme-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .meme-author {
+            font-size: 0.7rem;
+            color: #feca57;
+            margin-bottom: 0.5rem;
+        }
+
+        .meme-points {
+            font-size: 1rem;
+            color: #1dd1a1;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .meme-round-info {
+            font-size: 0.5rem;
+            color: #95a5a6;
+        }
+
+        .final-actions {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .action-button {
+            background: #1dd1a1;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .action-button:hover {
+            background: #10ac84;
+            transform: scale(1.05);
+        }
+
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 1.2rem;
+                margin-bottom: 1.5rem;
+                margin-top: 0.5rem;
+            }
+            
+            .game-info {
+                margin-bottom: 3rem;
+            }
+            
+            .podium-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .podium-place {
+                max-width: 280px;
+                width: 100%;
+                padding: 1rem;
+                order: unset !important;
+                transform: none !important;
+                height: auto !important;
+            }
+            
+            .podium-place.first {
+                transform: scale(1.05) !important;
+            }
+            
+            .podium-place:hover {
+                transform: translateY(-5px) scale(1.02) !important;
+            }
+            
+            .podium-place.first:hover {
+                transform: translateY(-5px) scale(1.08) !important;
+            }
+            
+            .memes-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .meme-card {
+                padding: 1rem;
+            }
+            
+            .action-button {
+                font-size: 0.7rem;
+                padding: 0.8rem 1.5rem;
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 10px;
+                margin: 5px;
+            }
+            
+            h1 {
+                font-size: 1rem;
+                margin-top: 0.3rem;
+                margin-bottom: 1rem;
+            }
+            
+            .game-info {
+                font-size: 0.7rem;
+                margin-bottom: 2rem;
+            }
+            
+            .podium-container {
+                margin-top: 1rem;
+            }
+            
+            .podium-place {
+                max-width: 250px;
+                padding: 0.8rem;
+            }
+            
+            .place-number {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+            
+            .winner-info {
+                font-size: 0.7rem;
+            }
+            
+            .winner-points {
+                font-size: 1rem;
+            }
+            
+            .winner-round {
+                font-size: 0.5rem;
+            }
+            
+            .section-title {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .meme-card {
+                padding: 0.8rem;
+            }
+            
+            .meme-rank {
+                font-size: 0.8rem;
+            }
+            
+            .meme-author {
+                font-size: 0.6rem;
+            }
+            
+            .meme-points {
+                font-size: 0.9rem;
+            }
+            
+            .meme-round-info {
+                font-size: 0.45rem;
+            }
+            
+            .action-button {
+                font-size: 0.6rem;
+                padding: 0.7rem 1.2rem;
+            }
+        }
+
+        @media (max-width: 320px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                padding: 8px;
+                margin: 2px;
+            }
+            
+            h1 {
+                font-size: 0.9rem;
+                margin-bottom: 1rem;
+                margin-top: 0.2rem;
+            }
+            
+            .game-info {
+                font-size: 0.65rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .podium-container {
+                margin-top: 0.5rem;
+            }
+            
+            .podium-place {
+                max-width: 220px;
+                padding: 0.6rem;
+            }
+            
+            .place-number {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+                top: -12px;
+            }
+            
+            .winner-meme {
+                height: auto !important;
+                aspect-ratio: 1 / 1;
+                min-height: 150px;
+            }
+            
+            .winner-info {
+                font-size: 0.65rem;
+            }
+            
+            .winner-points {
+                font-size: 0.9rem;
+            }
+            
+            .winner-round {
+                font-size: 0.45rem;
+            }
+            
+            .section-title {
+                font-size: 0.9rem;
+                margin-bottom: 1rem;
+            }
+            
+            .memes-grid {
+                gap: 0.8rem;
+            }
+            
+            .meme-card {
+                padding: 0.6rem;
+            }
+            
+            .meme-rank {
+                font-size: 0.7rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            .meme-author {
+                font-size: 0.55rem;
+            }
+            
+            .meme-points {
+                font-size: 0.8rem;
+            }
+            
+            .meme-round-info {
+                font-size: 0.4rem;
+            }
+            
+            .action-button {
+                font-size: 0.55rem;
+                padding: 0.6rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏆 ¡PODIO FINAL! 🏆</h1>
+        
+        <div class="game-info">
+            🎮 Partida {{game.code}} finalizada • Total de {{memes|length}} memes creados
+        </div>
+
+        {% if winner %}
+        <div class="podium-container">
+            {% set top_3 = memes[:3] %}
+            {% for meme in top_3 %}
+            <div class="podium-place {% if loop.index == 1 %}first{% elif loop.index == 2 %}second{% else %}third{% endif %}" style="height: {% if loop.index == 1 %}520px{% elif loop.index == 2 %}460px{% else %}440px{% endif %};">
+                <div class="place-number {% if loop.index == 1 %}first{% elif loop.index == 2 %}second{% else %}third{% endif %}">
+                    {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% else %}🥉{% endif %}
+                </div>
+                
+                <div class="winner-meme" style="height: {% if loop.index == 1 %}300px{% elif loop.index == 2 %}260px{% else %}240px{% endif %};">
+                    <img src="{{meme.image_path}}" alt="{{meme.template_name}}">
+                    {% for text in meme.texts %}
+                    <div class="meme-text-overlay podium-text-{{loop.index0}}" style="
+                        left: {{text.x}}%; 
+                        top: {{text.y}}%; 
+                        width: {{text.width}}%;
+                        height: {{text.height}}%;
+                        font-size: {{text.size}}px;
+                        transform: translate(0, 0);
+                        white-space: normal;
+                        word-break: break-word;
+                        hyphens: auto;
+                        line-height: 1.15;
+                        overflow: hidden;
+                    ">{{text.content}}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="winner-info">
+                    👤 {{meme.creator_name}}
+                </div>
+                <div class="winner-points">
+                    {{meme.total_points}} puntos
+                </div>
+                <div class="winner-round">
+                    Ronda {{meme.round_number}}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="all-memes-section">
+            <h2 class="section-title">📊 Todos los Memes del Juego</h2>
+            
+            <div class="memes-grid">
+                {% for meme in memes %}
+                <div class="meme-card {% if loop.index <= 3 %}top-3 rank-{{loop.index}}{% endif %}">
+                    {% if loop.index <= 3 %}
+                    <div class="meme-rank">
+                        #{{loop.index}} • 
+                        {% if loop.index == 1 %}🥇 GANADOR{% elif loop.index == 2 %}🥈 SEGUNDO{% else %}🥉 TERCERO{% endif %}
+                    </div>
+                    {% else %}
+                    <div class="meme-rank" style="color: #95a5a6;">
+                        #{{loop.index}}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="meme-preview">
+                        <img src="{{meme.image_path}}" alt="{{meme.template_name}}">
+                        {% set outer_loop = loop.index0 %}
+                        {% for text in meme.texts %}
+                        <div class="meme-text-overlay grid-text-{{outer_loop}}-{{loop.index0}}" style="
+                            left: {{text.x}}%; 
+                            top: {{text.y}}%; 
+                            width: {{text.width}}%;
+                            height: {{text.height}}%;
+                            font-size: {{text.size}}px;
+                            transform: translate(0, 0);
+                            white-space: normal;
+                            word-break: break-word;
+                            hyphens: auto;
+                            line-height: 1.15;
+                            overflow: hidden;
+                        ">{{text.content}}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="meme-author">
+                        👤 {{meme.creator_name}}
+                    </div>
+                    <div class="meme-points">
+                        {{meme.total_points}} puntos
+                    </div>
+                    <div class="meme-round-info">
+                        Creado en la Ronda {{meme.round_number}}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="final-actions">
+            <button class="action-button" onclick="window.location.href='/game/cleanup-game/{{game.code}}'">
+                🏠 Volver al Menú
+            </button>
+        </div>
+    </div>
+
+    <div class="confetti" id="confetti"></div>
+
+    <script>
+        // Función para ajustar automáticamente el tamaño de fuente
+        function adjustTextSize(element, originalSize) {
+            if (!element) return;
+            
+            let fontSize = originalSize;
+            element.style.fontSize = fontSize + 'px';
+            
+            // Reducir el tamaño hasta que el texto quepa
+            let attempts = 0;
+            const maxAttempts = 20;
+            
+            while (attempts < maxAttempts && (element.scrollHeight > element.offsetHeight || element.scrollWidth > element.offsetWidth)) {
+                fontSize = Math.max(fontSize * 0.9, 10); // No menor a 10px
+                element.style.fontSize = fontSize + 'px';
+                attempts++;
+                
+                // Pequeña pausa para permitir que el DOM se actualice
+                if (attempts % 5 === 0) {
+                    // Forzar repaint
+                    element.offsetHeight;
+                }
+            }
+        }
+
+        // Función para ajustar todos los textos de memes
+        function adjustAllMemeTexts() {
+            // Ajustar textos del podio (top 3)
+            document.querySelectorAll('.podium-place .meme-text-overlay').forEach((element, index) => {
+                const style = window.getComputedStyle(element);
+                const originalSize = parseInt(style.fontSize);
+                adjustTextSize(element, originalSize);
+            });
+            
+            // Ajustar textos de la grilla
+            document.querySelectorAll('.meme-preview .meme-text-overlay').forEach((element, index) => {
+                const style = window.getComputedStyle(element);
+                const originalSize = parseInt(style.fontSize);
+                adjustTextSize(element, originalSize);
+            });
+        }
+
+        // Crear confetti para celebrar
+        function createConfetti() {
+            const confettiContainer = document.getElementById('confetti');
+            const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1', '#a55eea'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'absolute';
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = confetti.style.width;
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-10px';
+                confetti.style.borderRadius = '50%';
+                confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear infinite`;
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                
+                confettiContainer.appendChild(confetti);
+            }
+        }
+
+        // Crear animación de caída
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                0% {
+                    transform: translateY(-10px) rotate(0deg);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(100vh) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Inicializar confetti después de un momento
+        setTimeout(createConfetti, 1000);
+
+        // Ajustar tamaños de fuente después de que se cargue todo
+        setTimeout(() => {
+            adjustAllMemeTexts();
+        }, 100);
+
+        // Anunciar ganador con sonido (si está disponible)
+        {% if winner %}
+        setTimeout(() => {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(
+                    `¡El ganador es ${winner.creator_name} con ${winner.total_points} puntos!`
+                );
+                utterance.lang = 'es-ES';
+                speechSynthesis.speak(utterance);
+            }
+        }, 2000);
+        {% endif %}
+    </script>
+</body>
+</html>

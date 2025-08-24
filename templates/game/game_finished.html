@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make it Meme - ¡Juego Terminado!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            color: #feca57;
+            text-shadow: 2px 2px #000;
+            margin-bottom: 2rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .celebration {
+            text-align: center;
+            font-size: 3rem;
+            margin: 2rem 0;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .final-message {
+            text-align: center;
+            font-size: 1rem;
+            color: #48dbfb;
+            margin-bottom: 3rem;
+        }
+
+        .memes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .meme-result {
+            background: rgba(255, 255, 255, 0.1);
+            border: 3px solid #1dd1a1;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .meme-result:hover {
+            transform: translateY(-5px);
+            border-color: #feca57;
+        }
+
+        .meme-author {
+            font-size: 0.8rem;
+            color: #feca57;
+            margin-bottom: 1rem;
+        }
+
+        .meme-container {
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Media queries para responsividad */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .celebration {
+                font-size: 2rem;
+            }
+            
+            .final-message {
+                font-size: 0.9rem;
+            }
+            
+            .memes-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .meme-result {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 10px;
+                margin: 5px;
+            }
+            
+            h1 {
+                font-size: 1.2rem;
+            }
+            
+            .celebration {
+                font-size: 1.5rem;
+            }
+            
+            .final-message {
+                font-size: 0.8rem;
+            }
+            
+            .meme-result {
+                padding: 0.8rem;
+            }
+        }
+
+        .meme-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .meme-text {
+            position: absolute;
+            width: 100%;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .meme-text.top {
+            top: 0;
+        }
+
+        .meme-text.bottom {
+            bottom: 0;
+        }
+
+        .final-actions {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .action-button {
+            background: #1dd1a1;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .action-button:hover {
+            background: #10ac84;
+            transform: scale(1.05);
+        }
+
+        .action-button.secondary {
+            background: #48dbfb;
+        }
+
+        .action-button.secondary:hover {
+            background: #0fb9b1;
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .stat-item {
+            font-size: 0.8rem;
+            color: #1dd1a1;
+            margin: 0.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="celebration">🎉🏆🎉</div>
+        <h1>¡Juego Completado!</h1>
+        
+        <div class="final-message">
+            ¡Felicidades! Han completado las 3 rondas de Make it Meme.<br>
+            Aquí están todos los memes creativos de la última ronda:
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">🎮 Partida: {{game.code}}</div>
+            <div class="stat-item">👥 {{game.players|length}} jugadores participaron</div>
+            <div class="stat-item">🏁 3 rondas completadas</div>
+        </div>
+
+        {% if final_memes %}
+        <div class="memes-grid">
+            {% for meme in final_memes %}
+            <div class="meme-result">
+                <div class="meme-author">
+                    👾 {{meme.user.nickname}}
+                </div>
+                <div class="meme-container">
+                    <img src="{{meme.template.image_path}}" alt="Meme" class="meme-image">
+                    {% if meme.text_top %}
+                    <div class="meme-text top">{{meme.text_top}}</div>
+                    {% endif %}
+                    {% if meme.text_bottom %}
+                    <div class="meme-text bottom">{{meme.text_bottom}}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="final-actions">
+            <a href="/" class="action-button">
+                🏠 Volver al Menú
+            </a>
+            <a href="/game/create" class="action-button secondary">
+                🎮 Nueva Partida
+            </a>
+            <a href="/auth/logout" class="action-button" style="background: #48dbfb;">
+                ↻ Cambiar Nickname
+            </a>
+        </div>
+    </div>
+</body>
+</html>

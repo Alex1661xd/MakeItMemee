@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make it Meme - Votación Ronda {{game.current_round}}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            margin: 0;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #feca57;
+            text-shadow: 2px 2px #000;
+            margin-bottom: 1rem;
+        }
+
+        .voting-info {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #48dbfb;
+            margin-bottom: 2rem;
+        }
+
+        .meme-counter {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #1dd1a1;
+            margin-bottom: 1rem;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 2rem;
+            color: #ff6b6b;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px #000;
+        }
+
+        .timer.warning {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .current-meme-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .meme-display {
+            position: relative;
+            max-width: 500px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            margin-bottom: 1rem;
+        }
+
+        .meme-display img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .meme-text-overlay {
+            position: absolute;
+            color: #000;
+            font-weight: 500;
+            text-align: center;
+            text-shadow: none;
+            font-family: 'Roboto', Arial, Helvetica, sans-serif;
+            text-transform: none;
+            line-height: 1.15;
+            word-wrap: break-word;
+            hyphens: auto;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 6px;
+            padding: 6px 8px;
+            box-sizing: border-box;
+        }
+
+        .creator-info {
+            font-size: 0.8rem;
+            color: #feca57;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .voting-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .vote-btn {
+            background: linear-gradient(145deg, #333, #555);
+            border: 2px solid;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .vote-btn.suave {
+            border-color: #ff6b6b;
+        }
+
+        .vote-btn.normal {
+            border-color: #feca57;
+        }
+
+        .vote-btn.me-rei {
+            border-color: #1dd1a1;
+        }
+
+        .vote-btn:hover {
+            transform: scale(1.1);
+            background: linear-gradient(145deg, #555, #777);
+        }
+
+        .vote-btn:disabled {
+            background: #636e72;
+            border-color: #636e72;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .vote-btn.voted {
+            background: linear-gradient(145deg, #27ae60, #2ecc71);
+            border-color: #27ae60;
+        }
+
+        .points-display {
+            font-size: 0.6rem;
+            margin-top: 0.5rem;
+        }
+
+        .waiting-message {
+            text-align: center;
+            font-size: 1rem;
+            color: #48dbfb;
+            margin: 2rem 0;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1dd1a1, #48dbfb);
+            transition: width 0.5s ease;
+        }
+
+        .skip-info {
+            text-align: center;
+            font-size: 0.6rem;
+            color: #95a5a6;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 1.2rem;
+            }
+            
+            .voting-buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.8rem;
+            }
+            
+            .vote-btn {
+                width: 100%;
+                max-width: 280px;
+                font-size: 0.6rem;
+                padding: 0.8rem 1.2rem;
+            }
+            
+            .timer {
+                font-size: 1.5rem;
+            }
+            
+            .meme-display {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 10px;
+                margin: 5px;
+            }
+            
+            h1 {
+                font-size: 1rem;
+            }
+            
+            .voting-info {
+                font-size: 0.7rem;
+            }
+            
+            .vote-btn {
+                font-size: 0.5rem;
+                padding: 0.7rem 1rem;
+            }
+            
+            .timer {
+                font-size: 1.3rem;
+            }
+            
+            .meme-counter {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗳️ Fase de Votación - Ronda {{game.current_round}} 🗳️</h1>
+        
+        <div class="voting-info">
+            ¡Es hora de votar por los mejores memes! Cada meme se mostrará durante 8 segundos.
+        </div>
+
+        <div class="meme-counter" id="memeCounter">
+            Meme <span id="currentIndex">1</span> de <span id="totalMemes">{{memes|length}}</span>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="timer" id="timer">8</div>
+
+        <div class="current-meme-container" id="memeContainer">
+            <!-- El meme actual se cargará aquí -->
+        </div>
+
+        <div class="voting-buttons" id="votingButtons">
+            <button class="vote-btn suave" onclick="vote('suave')">
+                😐 Suave
+                <div class="points-display">+1 punto</div>
+            </button>
+            <button class="vote-btn normal" onclick="vote('normal')">
+                😊 Normal
+                <div class="points-display">+3 puntos</div>
+            </button>
+            <button class="vote-btn me-rei" onclick="vote('me_rei')">
+                😂 ¡Me reí!
+                <div class="points-display">+10 puntos</div>
+            </button>
+        </div>
+
+        <div class="skip-info" id="skipInfo">
+            💡 Puedes votar en cualquier momento durante los 8 segundos
+        </div>
+
+        <div class="waiting-message" id="waitingMessage" style="display: none;">
+            Esperando a que todos terminen de votar...
+        </div>
+
+        <div class="continue-section" id="continueSection" style="display: none; text-align: center; margin-top: 2rem;">
+            <div style="font-size: 0.8rem; color: #1dd1a1; margin-bottom: 1rem;">
+                ✅ ¡Todos han votado! 
+            </div>
+            <button class="vote-btn" id="continueButton" style="background: #1dd1a1; border-color: #1dd1a1; min-width: 200px;">
+                {% if game.current_round >= 3 %}
+                🏆 Ver Podio Final
+                {% else %}
+                ▶️ Siguiente Ronda
+                {% endif %}
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        // Datos del juego
+        const gameCode = '{{game.code}}';
+        const currentUserId = {{current_user_id}};
+        const memes = {{memes|tojson}};
+        
+        // Variables de control
+        let currentMemeIndex = 0;
+        let timeLeft = 8;
+        let timer = null;
+        let hasVotedCurrentMeme = false;
+        let allVotingComplete = false;
+
+        // Elementos del DOM
+        const timerElement = document.getElementById('timer');
+        const memeContainer = document.getElementById('memeContainer');
+        const currentIndexSpan = document.getElementById('currentIndex');
+        const votingButtons = document.getElementById('votingButtons');
+        const progressFill = document.getElementById('progressFill');
+        const waitingMessage = document.getElementById('waitingMessage');
+        const skipInfo = document.getElementById('skipInfo');
+
+        // Socket.IO
+        const socket = io();
+        socket.emit('join', { code: gameCode });
+
+        // Función para ajustar automáticamente el tamaño de fuente
+        function adjustTextSize(elementId, originalSize) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            let fontSize = originalSize;
+            element.style.fontSize = fontSize + 'px';
+            
+            // Reducir el tamaño hasta que el texto quepa
+            let attempts = 0;
+            const maxAttempts = 20;
+            
+            while (attempts < maxAttempts && (element.scrollHeight > element.offsetHeight || element.scrollWidth > element.offsetWidth)) {
+                fontSize = Math.max(fontSize * 0.9, 10); // No menor a 10px
+                element.style.fontSize = fontSize + 'px';
+                attempts++;
+                
+                // Pequeña pausa para permitir que el DOM se actualice
+                if (attempts % 5 === 0) {
+                    // Forzar repaint
+                    element.offsetHeight;
+                }
+            }
+        }
+
+        function displayCurrentMeme() {
+            if (currentMemeIndex >= memes.length) {
+                showWaitingMessage();
+                return;
+            }
+
+            const meme = memes[currentMemeIndex];
+            hasVotedCurrentMeme = false;
+
+            // Actualizar contador
+            currentIndexSpan.textContent = currentMemeIndex + 1;
+            
+            // Actualizar barra de progreso
+            const progress = ((currentMemeIndex + 1) / memes.length) * 100;
+            progressFill.style.width = progress + '%';
+
+            // Crear textos overlay
+            let textOverlays = '';
+            meme.texts.forEach((text, index) => {
+                textOverlays += `
+                    <div class="meme-text-overlay" id="textOverlay${index}" style="
+                        left: ${text.x}%; 
+                        top: ${text.y}%; 
+                        width: ${text.width}%;
+                        height: ${text.height}%;
+                        font-size: ${text.size}px;
+                        transform: translate(0, 0);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 6px 8px;
+                        box-sizing: border-box;
+                        white-space: normal;
+                        word-break: break-word;
+                        hyphens: auto;
+                        line-height: 1.15;
+                        overflow: hidden;
+                    ">${text.content}</div>
+                `;
+            });
+
+            // Mostrar meme
+            memeContainer.innerHTML = `
+                <div class="meme-display">
+                    <img src="${meme.image_path}" alt="${meme.template_name}">
+                    ${textOverlays}
+                </div>
+                <div class="creator-info">
+                    👤 Creado por: <strong>${meme.creator_name}</strong>
+                </div>
+            `;
+
+            // Ajustar tamaño de fuente automáticamente después de cargar el contenido
+            setTimeout(() => {
+                meme.texts.forEach((text, index) => {
+                    adjustTextSize(`textOverlay${index}`, text.size);
+                });
+            }, 50);
+
+            // Habilitar/deshabilitar botones de voto
+            updateVotingButtons(meme);
+
+            // Reiniciar temporizador
+            timeLeft = 8;
+            startTimer();
+        }
+
+        function updateVotingButtons(meme) {
+            const buttons = votingButtons.querySelectorAll('.vote-btn');
+            
+            // Resetear todos los botones primero
+            buttons.forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('voted');
+                // Restaurar el contenido original del botón
+                if (btn.classList.contains('suave')) {
+                    btn.innerHTML = '😐 Suave<div class="points-display">+1 punto</div>';
+                } else if (btn.classList.contains('normal')) {
+                    btn.innerHTML = '😊 Normal<div class="points-display">+3 puntos</div>';
+                } else if (btn.classList.contains('me-rei')) {
+                    btn.innerHTML = '😂 ¡Me reí!<div class="points-display">+10 puntos</div>';
+                }
+            });
+            
+            // Si es mi propio meme, deshabilitar botones
+            if (meme.creator_id === currentUserId) {
+                buttons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.innerHTML = btn.innerHTML.split('<div')[0] + '<div class="points-display">Tu propio meme</div>';
+                });
+                skipInfo.textContent = '❌ No puedes votar por tu propio meme';
+            } else {
+                skipInfo.textContent = '💡 Puedes votar en cualquier momento durante los 8 segundos';
+            }
+        }
+
+        function startTimer() {
+            if (timer) clearInterval(timer);
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = timeLeft;
+                
+                if (timeLeft <= 3) {
+                    timerElement.classList.add('warning');
+                } else {
+                    timerElement.classList.remove('warning');
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    nextMeme();
+                }
+            }, 1000);
+        }
+
+        function nextMeme() {
+            currentMemeIndex++;
+            
+            if (currentMemeIndex >= memes.length) {
+                showWaitingMessage();
+                checkVotingComplete();
+            } else {
+                displayCurrentMeme();
+            }
+        }
+
+        function vote(voteType) {
+            if (hasVotedCurrentMeme) return;
+            if (currentMemeIndex >= memes.length) return;
+            
+            const currentMeme = memes[currentMemeIndex];
+            
+            // Verificar que no sea mi propio meme
+            if (currentMeme.creator_id === currentUserId) {
+                alert('¡No puedes votar por tu propio meme!');
+                return;
+            }
+
+            fetch('/game/vote', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    player_template_id: currentMeme.id,
+                    vote_type: voteType,
+                    game_code: gameCode
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    hasVotedCurrentMeme = true;
+                    
+                    // Marcar botón como votado
+                    const button = document.querySelector(`.vote-btn.${voteType.replace('_', '-')}`);
+                    if (button) {
+                        button.classList.add('voted');
+                        votingButtons.querySelectorAll('.vote-btn').forEach(btn => {
+                            if (btn !== button) btn.disabled = true;
+                        });
+                    }
+                    
+                    skipInfo.innerHTML = `✅ ¡Votaste "${voteType.replace('_', ' ')}" por ${data.points_given} puntos!`;
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al votar. Inténtalo de nuevo.');
+            });
+        }
+
+        function showWaitingMessage() {
+            memeContainer.style.display = 'none';
+            votingButtons.style.display = 'none';
+            skipInfo.style.display = 'none';
+            waitingMessage.style.display = 'block';
+            timerElement.style.display = 'none';
+            
+            if (timer) {
+                clearInterval(timer);
+            }
+        }
+
+        function checkVotingComplete() {
+            // Mostrar botón de continuar para el creador
+            setTimeout(() => {
+                const continueSection = document.getElementById('continueSection');
+                {% if game.creator_id == current_user_id %}
+                continueSection.style.display = 'block';
+                setupContinueButton();
+                {% else %}
+                if ({{game.current_round}} >= 3) {
+                    waitingMessage.innerHTML = 'Esperando al anfitrión para ver el podio final...';
+                } else {
+                    waitingMessage.innerHTML = 'Esperando al anfitrión para continuar a la siguiente ronda...';
+                }
+                {% endif %}
+            }, 3000);
+        }
+
+        function setupContinueButton() {
+            const continueButton = document.getElementById('continueButton');
+            continueButton.addEventListener('click', () => {
+                continueButton.disabled = true;
+                continueButton.textContent = 'Continuando...';
+                
+                // Siempre usar la lógica del servidor para continuar
+                fetch(`/game/continue-after-voting/${gameCode}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.redirect) {
+                        window.location.href = data.redirect;
+                    } else if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        alert(data.error || 'Error al continuar');
+                        continueButton.disabled = false;
+                        // Restaurar el texto correcto del botón según la ronda
+                        if ({{game.current_round}} >= 3) {
+                            continueButton.textContent = '🏆 Ver Podio Final';
+                        } else {
+                            continueButton.textContent = '▶️ Siguiente Ronda';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al continuar a la siguiente ronda');
+                    continueButton.disabled = false;
+                    // Restaurar el texto correcto del botón según la ronda
+                    if ({{game.current_round}} >= 3) {
+                        continueButton.textContent = '🏆 Ver Podio Final';
+                    } else {
+                        continueButton.textContent = '▶️ Siguiente Ronda';
+                    }
+                });
+            });
+        }
+
+        // Escuchar eventos del servidor
+        socket.on('next_round_started', (data) => {
+            console.log('Nueva ronda iniciada:', data);
+            // Redirigir a la nueva ronda
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else {
+                window.location.reload();
+            }
+        });
+
+        socket.on('force_refresh', () => {
+            console.log('Forzando actualización...');
+            window.location.reload();
+        });
+
+        socket.on('game_finished', (data) => {
+            console.log('Juego terminado, redirigiendo al podio:', data);
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else {
+                window.location.href = `/game/podium/${gameCode}`;
+            }
+        });
+
+        // Inicializar
+        if (memes.length > 0) {
+            displayCurrentMeme();
+        } else {
+            showWaitingMessage();
+            waitingMessage.textContent = 'No hay memes para votar en esta ronda. Verificando estado...';
+        }
+        
+        // Verificar sincronización cada 3 segundos
+        setInterval(() => {
+            // Si estamos en la fase de votación pero no hay memes, verificar si hay una nueva ronda
+            if (memes.length === 0) {
+                fetch(`/game/check-round-status/${gameCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Estado de la ronda:', data);
+                    if (data.status === 'finished') {
+                        console.log('Juego terminado, redirigiendo al podio...');
+                        window.location.href = data.redirect;
+                    } else if (data.status === 'started' && data.current_round > {{game.current_round}}) {
+                        console.log('Detectada desincronización, actualizando...');
+                        window.location.reload();
+                    } else if (data.status === 'started' && data.templates_available) {
+                        console.log('Hay plantillas disponibles, redirigiendo a la nueva ronda...');
+                        window.location.href = `/game/play/${gameCode}`;
+                    }
+                })
+                .catch(error => console.error('Error verificando estado:', error));
+            }
+        }, 3000);
+
+        // Limpiar intervalos al salir
+        window.addEventListener('beforeunload', () => {
+            if (timer) clearInterval(timer);
+        });
+    </script>
+</body>
+</html>

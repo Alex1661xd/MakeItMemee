@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make it Meme - Resultados Ronda {{game.current_round}}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #feca57;
+            text-shadow: 2px 2px #000;
+            margin-bottom: 2rem;
+        }
+
+        .round-info {
+            text-align: center;
+            font-size: 1rem;
+            color: #48dbfb;
+            margin-bottom: 2rem;
+        }
+
+        .memes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .meme-result {
+            background: rgba(255, 255, 255, 0.1);
+            border: 3px solid #1dd1a1;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .meme-result:hover {
+            transform: translateY(-5px);
+        }
+
+        .meme-author {
+            font-size: 0.8rem;
+            color: #feca57;
+            margin-bottom: 1rem;
+        }
+
+        .meme-container {
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .meme-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .meme-text {
+            position: absolute;
+            width: 100%;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .meme-text.top {
+            top: 0;
+        }
+
+        .meme-text.bottom {
+            bottom: 0;
+        }
+
+        .continue-section {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .continue-button {
+            background: #1dd1a1;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 1rem;
+        }
+
+        .continue-button:hover {
+            background: #10ac84;
+            transform: scale(1.05);
+        }
+
+        .continue-button:disabled {
+            background: #636e72;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .waiting-text {
+            font-size: 0.8rem;
+            color: #48dbfb;
+            margin-top: 1rem;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
+
+        /* Media queries para responsividad */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 1.2rem;
+            }
+            
+            .round-info {
+                font-size: 0.9rem;
+            }
+            
+            .memes-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .meme-result {
+                padding: 1rem;
+            }
+            
+            .continue-button {
+                font-size: 0.8rem;
+                padding: 0.8rem 1.5rem;
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 10px;
+                margin: 5px;
+            }
+            
+            h1 {
+                font-size: 1rem;
+            }
+            
+            .round-info {
+                font-size: 0.8rem;
+            }
+            
+            .meme-result {
+                padding: 0.8rem;
+            }
+            
+            .continue-button {
+                font-size: 0.7rem;
+                padding: 0.7rem 1.2rem;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Resultados Ronda {{game.current_round}} 🎮</h1>
+        
+        <div class="round-info">
+            {% if game.current_round < 3 %}
+                Ronda {{game.current_round}} completada - Faltan {{3 - game.current_round}} rondas
+            {% else %}
+                ¡Última ronda completada!
+            {% endif %}
+        </div>
+
+        <div class="memes-grid">
+            {% for meme in memes %}
+            <div class="meme-result">
+                <div class="meme-author">
+                    👾 {{meme.user.nickname}}
+                </div>
+                <div class="meme-container">
+                    <img src="{{meme.template.image_path}}" alt="Meme" class="meme-image">
+                    {% if meme.text_top %}
+                    <div class="meme-text top">{{meme.text_top}}</div>
+                    {% endif %}
+                    {% if meme.text_bottom %}
+                    <div class="meme-text bottom">{{meme.text_bottom}}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="continue-section">
+            {% if game.current_round < 3 %}
+                {% if is_creator %}
+                <button id="continueButton" class="continue-button">
+                    ¡Continuar a Ronda {{game.current_round + 1}}! 🚀
+                </button>
+                {% else %}
+                <div class="waiting-text">
+                    Esperando que el anfitrión continúe a la siguiente ronda...
+                </div>
+                {% endif %}
+            {% else %}
+                <div style="font-size: 1.2rem; color: #feca57; margin: 2rem 0;">
+                    🎉 ¡Juego Completado! 🎉
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="/" class="continue-button" style="text-decoration: none; display: inline-block;">
+                        Volver al Menú
+                    </a>
+                    <a href="/auth/logout" class="continue-button" style="text-decoration: none; display: inline-block; background: #48dbfb;">
+                        Cambiar Nickname
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Configuración del Socket.IO
+        const socket = io();
+        const gameCode = '{{game.code}}';
+        socket.emit('join', { code: gameCode });
+        
+        // Manejar botón de continuar
+        const continueButton = document.getElementById('continueButton');
+        if (continueButton) {
+            continueButton.addEventListener('click', () => {
+                continueButton.disabled = true;
+                continueButton.textContent = 'Iniciando siguiente ronda...';
+                
+                fetch(`/game/next-round/${gameCode}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = `/game/play/${gameCode}`;
+                    } else {
+                        alert(data.error || 'Error al continuar');
+                        continueButton.disabled = false;
+                        continueButton.textContent = `¡Continuar a Ronda {{game.current_round + 1}}! 🚀`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al continuar a la siguiente ronda');
+                    continueButton.disabled = false;
+                    continueButton.textContent = `¡Continuar a Ronda {{game.current_round + 1}}! 🚀`;
+                });
+            });
+        }
+        
+        // Escuchar eventos del servidor
+        socket.on('next_round_started', () => {
+            window.location.href = `/game/play/${gameCode}`;
+        });
+    </script>
+</body>
+</html>

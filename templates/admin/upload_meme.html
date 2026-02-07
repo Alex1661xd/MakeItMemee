@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subir Nueva Plantilla - Make it Meme Admin</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            margin: 0;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #e74c3c;
+            text-shadow: 2px 2px #000;
+            margin-bottom: 2rem;
+        }
+
+        .upload-area {
+            border: 3px dashed #3498db;
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+            cursor: pointer;
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .upload-area:hover {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, 0.2);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #3498db;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 0.8rem;
+            color: #95a5a6;
+            margin-bottom: 1rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.7rem;
+            color: #f1c40f;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #3498db;
+            border-radius: 6px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #f1c40f;
+        }
+
+        .preview-area {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 4px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .upload-button {
+            width: 100%;
+            background: #27ae60;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .upload-button:hover {
+            background: #229954;
+            transform: scale(1.02);
+        }
+
+        .upload-button:disabled {
+            background: #636e72;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-link {
+            color: #95a5a6;
+            text-decoration: none;
+            font-size: 0.6rem;
+            margin-top: 2rem;
+            display: inline-block;
+        }
+
+        .back-link:hover {
+            color: #f1c40f;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .status-message {
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 0.7rem;
+            display: none;
+        }
+
+        .status-success { color: #2ecc71; }
+        .status-error { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📤 Subir Nueva Plantilla de Meme 📤</h1>
+        
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">🖼️</div>
+                <div class="upload-text">
+                    Arrastra y suelta una imagen aquí<br>
+                    o haz clic para seleccionar
+                </div>
+                <input type="file" id="fileInput" class="file-input" accept="image/*">
+            </div>
+
+            <div class="form-group">
+                <label for="memeName">Nombre del Meme:</label>
+                <input type="text" id="memeName" name="name" placeholder="Ej: Drake Hotline Bling">
+            </div>
+
+            <div class="preview-area" id="previewArea">
+                <h3 style="font-size: 0.8rem; color: #f1c40f; margin-bottom: 1rem;">Vista Previa:</h3>
+                <img id="previewImage" class="preview-image" alt="Vista previa">
+            </div>
+
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="status-message" id="statusMessage"></div>
+
+            <button type="submit" class="upload-button" id="uploadButton" disabled>
+                📤 Subir y Continuar al Editor
+            </button>
+        </form>
+
+        <a href="/admin" class="back-link">← Volver al panel</a>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewArea = document.getElementById('previewArea');
+        const previewImage = document.getElementById('previewImage');
+        const uploadButton = document.getElementById('uploadButton');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const statusMessage = document.getElementById('statusMessage');
+        const memeNameInput = document.getElementById('memeName');
+        
+        let selectedFile = null;
+
+        // Eventos de drag & drop
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('drop', handleDrop);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        }
+
+        function handleFile(file) {
+            // Validar tipo de archivo
+            if (!file.type.startsWith('image/')) {
+                showStatus('❌ Por favor selecciona una imagen válida', 'error');
+                return;
+            }
+
+            // Validar tamaño (máximo 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showStatus('❌ La imagen es muy grande (máximo 10MB)', 'error');
+                return;
+            }
+
+            selectedFile = file;
+            
+            // Auto-completar nombre si está vacío
+            if (!memeNameInput.value.trim()) {
+                const fileName = file.name.split('.')[0];
+                memeNameInput.value = fileName;
+            }
+
+            // Mostrar vista previa
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewArea.style.display = 'block';
+                uploadButton.disabled = false;
+            };
+            reader.readAsDataURL(file);
+
+            showStatus('✅ Imagen cargada correctamente', 'success');
+        }
+
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message status-${type}`;
+            statusMessage.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Manejar envío del formulario
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!selectedFile) {
+                showStatus('❌ Por favor selecciona una imagen', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+            formData.append('name', memeNameInput.value.trim() || selectedFile.name.split('.')[0]);
+
+            // Mostrar progreso
+            uploadButton.disabled = true;
+            uploadButton.textContent = 'Subiendo...';
+            progressBar.style.display = 'block';
+            
+            try {
+                // Simular progreso
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += Math.random() * 30;
+                    if (progress > 90) progress = 90;
+                    progressFill.style.width = progress + '%';
+                }, 200);
+
+                const response = await fetch('/admin/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('✅ ' + result.message, 'success');
+                    setTimeout(() => {
+                        if (result.redirect) {
+                            window.location.href = result.redirect;
+                        } else {
+                            window.location.href = '/admin';
+                        }
+                    }, 1500);
+                } else {
+                    throw new Error(result.error || 'Error desconocido');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('❌ Error: ' + error.message, 'error');
+                uploadButton.disabled = false;
+                uploadButton.textContent = '📤 Subir y Continuar al Editor';
+                progressBar.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
